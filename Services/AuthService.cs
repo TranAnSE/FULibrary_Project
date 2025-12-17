@@ -6,10 +6,12 @@ namespace Services;
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IJwtService _jwtService;
 
-    public AuthService(IUserRepository userRepository)
+    public AuthService(IUserRepository userRepository, IJwtService jwtService)
     {
         _userRepository = userRepository;
+        _jwtService = jwtService;
     }
 
     public async Task<(User? User, string? Token)> LoginAsync(string email, string password)
@@ -21,8 +23,10 @@ public class AuthService : IAuthService
         if (!VerifyPassword(password, user.PasswordHash))
             return (null, null);
 
-        // TODO: Generate JWT token
-        var token = "jwt-token-placeholder";
+        var userWithRoles = await _userRepository.GetWithRolesAsync(user.Id);
+        var roles = userWithRoles?.UserRoles.Select(ur => ur.Role.Name).ToList() ?? new List<string>();
+        
+        var token = _jwtService.GenerateToken(user.Id, user.Email, user.FullName, roles, user.AssignedLibraryId);
 
         return (user, token);
     }
