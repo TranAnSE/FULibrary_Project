@@ -64,17 +64,18 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
     public async Task<IEnumerable<Book>> GetNewBooksThisMonthAsync(Guid? libraryId = null)
     {
         var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-        var query = _dbSet
-            .Where(b => b.CreatedAt >= startOfMonth)
-            .Include(b => b.Category)
-            .Include(b => b.Language)
-            .Include(b => b.Publisher);
+        IQueryable<Book> query = _dbSet
+            .Where(b => b.CreatedAt >= startOfMonth);
 
         if (libraryId.HasValue)
         {
             query = query.Where(b => b.LibraryId == libraryId.Value);
         }
 
-        return await query.ToListAsync();
+        return await query
+            .Include(b => b.Category)
+            .Include(b => b.Language)
+            .Include(b => b.Publisher)
+            .ToListAsync();
     }
 }

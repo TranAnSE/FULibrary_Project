@@ -1,0 +1,182 @@
+@model LibraryManagementClient.Models.SearchViewModel
+@{
+    ViewData["Title"] = "Advanced Search";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary">
+            <i class="fas fa-sliders-h me-2"></i>Advanced Search
+        </h2>
+        <p class="text-muted">Use multiple criteria to find exactly what you're looking for</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>Search Criteria
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Advanced" method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Title" class="form-label">Title</label>
+                            <input asp-for="Title" class="form-control" placeholder="Enter book title" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Author" class="form-label">Author</label>
+                            <input asp-for="Author" class="form-control" placeholder="Enter author name" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ISBN" class="form-label">ISBN</label>
+                            <input asp-for="ISBN" class="form-control" placeholder="Enter ISBN" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Subject" class="form-label">Subject</label>
+                            <input asp-for="Subject" class="form-control" placeholder="Enter subject" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="Keyword" class="form-label">Keyword</label>
+                            <input asp-for="Keyword" class="form-control" placeholder="Enter keywords" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CategoryId" class="form-label">Category</label>
+                            <select asp-for="CategoryId" class="form-select">
+                                <option value="">All Categories</option>
+                                @foreach (var category in (List<LibraryManagementClient.Models.CategoryDto>)ViewBag.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LanguageId" class="form-label">Language</label>
+                            <select asp-for="LanguageId" class="form-select">
+                                <option value="">All Languages</option>
+                                @foreach (var language in (List<LibraryManagementClient.Models.LanguageDto>)ViewBag.Languages)
+                                {
+                                    <option value="@language.Id">@language.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PublisherId" class="form-label">Publisher</label>
+                            <select asp-for="PublisherId" class="form-select">
+                                <option value="">All Publishers</option>
+                                @foreach (var publisher in (List<LibraryManagementClient.Models.PublisherDto>)ViewBag.Publishers)
+                                {
+                                    <option value="@publisher.Id">@publisher.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="YearFrom" class="form-label">Year From</label>
+                            <input asp-for="YearFrom" type="number" class="form-control" placeholder="e.g. 2000" min="1900" max="@DateTime.Now.Year" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="YearTo" class="form-label">Year To</label>
+                            <input asp-for="YearTo" type="number" class="form-control" placeholder="e.g. 2024" min="1900" max="@DateTime.Now.Year" />
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        @if (Model.Results.Any())
+        {
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Search Results (@Model.TotalResults)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach (var book in Model.Results)
+                        {
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">@book.Title</h6>
+                                        <p class="text-muted text-sm mb-2">
+                                            <i class="fas fa-user me-1"></i>@(book.Author ?? "Unknown Author")
+                                        </p>
+                                        @if (!string.IsNullOrEmpty(book.ISBN))
+                                        {
+                                            <p class="text-muted text-xs mb-2">
+                                                <i class="fas fa-barcode me-1"></i>ISBN: @book.ISBN
+                                            </p>
+                                        }
+                                        <p class="text-muted text-xs mb-2">
+                                            <i class="fas fa-building me-1"></i>@book.LibraryName
+                                        </p>
+                                        <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-info-circle me-1"></i>View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Search Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        You can combine multiple criteria
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Leave fields empty to skip them
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Use year range for specific periods
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Categories help narrow your search
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

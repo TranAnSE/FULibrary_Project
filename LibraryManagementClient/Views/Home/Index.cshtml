@@ -1,8 +1,145 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card bg-primary text-white shadow-md">
+            <div class="card-body p-5 text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-book-reader me-3"></i>Welcome to FU Library
+                </h1>
+                <p class="lead mb-4">
+                    Discover a world of knowledge and learning resources at your fingertips
+                </p>
+                
+                <!-- Search Box -->
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <form asp-controller="Home" asp-action="Search" method="get" class="search-box">
+                            <div class="input-group input-group-lg">
+                                <input type="text" name="term" class="form-control" 
+                                       placeholder="Search for books, authors, subjects..." 
+                                       aria-label="Search" required />
+                                <button class="btn btn-accent" type="submit">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-3">
+                            <a asp-controller="Search" asp-action="Advanced" class="text-white text-decoration-none">
+                                <i class="fas fa-sliders-h me-1"></i>Advanced Search
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Quick Stats -->
+<div class="row mb-5">
+    <div class="col-md-4 mb-3">
+        <div class="card dashboard-card shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-book text-primary mb-3" style="font-size: 3rem;"></i>
+                <h5 class="card-title">Extensive Collection</h5>
+                <p class="text-muted">Thousands of books across multiple disciplines</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card dashboard-card accent shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-user-graduate text-accent mb-3" style="font-size: 3rem;"></i>
+                <h5 class="card-title">Easy Access</h5>
+                <p class="text-muted">Borrow books with your student card</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card dashboard-card shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-clock text-primary mb-3" style="font-size: 3rem;"></i>
+                <h5 class="card-title">Flexible Hours</h5>
+                <p class="text-muted">Open 7 days a week to serve you better</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Materials Section -->
+@if (ViewBag.NewBooks != null && ((List<LibraryManagementClient.Models.BookDto>)ViewBag.NewBooks).Any())
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="text-primary">
+                    <i class="fas fa-star me-2"></i>New Materials This Month
+                </h3>
+                <a asp-controller="Books" asp-action="New" class="btn btn-outline-primary">
+                    View All <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var book in ((List<LibraryManagementClient.Models.BookDto>)ViewBag.NewBooks).Take(4))
+        {
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card book-card shadow-sm">
+                    @if (!string.IsNullOrEmpty(book.CoverImageUrl))
+                    {
+                        <img src="@book.CoverImageUrl" class="card-img-top" alt="@book.Title" />
+                    }
+                    else
+                    {
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-book text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h6 class="card-title text-truncate" title="@book.Title">@book.Title</h6>
+                        <p class="text-muted text-sm mb-2">
+                            <i class="fas fa-user me-1"></i>
+                            @(book.Author ?? "Unknown Author")
+                        </p>
+                        <p class="text-muted text-xs mb-3">
+                            <i class="fas fa-building me-1"></i>@book.LibraryName
+                        </p>
+                        <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" 
+                           class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-info-circle me-1"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Call to Action -->
+@if (User.Identity?.IsAuthenticated != true)
+{
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-accent text-white shadow-md">
+                <div class="card-body p-4 text-center">
+                    <h4 class="mb-3">
+                        <i class="fas fa-user-plus me-2"></i>Join Our Library Community
+                    </h4>
+                    <p class="mb-3">
+                        Login with your student account to borrow books, make reservations, and manage your reading journey
+                    </p>
+                    <a asp-controller="Auth" asp-action="Login" class="btn btn-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

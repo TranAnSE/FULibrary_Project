@@ -14,7 +14,7 @@ public class FineDAO : BaseDAO<Fine>, IFineDAO
         return await _dbSet
             .Where(f => f.UserId == userId)
             .Include(f => f.Loan)
-            .ThenInclude(l => l.BookCopy)
+            .ThenInclude(l => l.BookCopy!)
             .ThenInclude(bc => bc.Book)
             .OrderByDescending(f => f.CreatedAt)
             .ToListAsync();
@@ -25,7 +25,7 @@ public class FineDAO : BaseDAO<Fine>, IFineDAO
         return await _dbSet
             .Where(f => f.UserId == userId && f.Status == FineStatus.Pending)
             .Include(f => f.Loan)
-            .ThenInclude(l => l.BookCopy)
+            .ThenInclude(l => l.BookCopy!)
             .ThenInclude(bc => bc.Book)
             .ToListAsync();
     }
@@ -43,7 +43,7 @@ public class FineDAO : BaseDAO<Fine>, IFineDAO
             .Include(f => f.Payments)
             .Include(f => f.User)
             .Include(f => f.Loan)
-            .ThenInclude(l => l.BookCopy)
+            .ThenInclude(l => l.BookCopy!)
             .ThenInclude(bc => bc.Book)
             .FirstOrDefaultAsync(f => f.Id == id);
     }

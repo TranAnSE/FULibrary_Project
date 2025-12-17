@@ -16,15 +16,14 @@ public class BookSuggestionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] Guid? libraryId, [FromQuery] string? status)
+    public async Task<IActionResult> GetAll([FromQuery] string? status)
     {
         var suggestions = await _suggestionDAO.GetAllAsync();
         
-        if (libraryId.HasValue)
-            suggestions = suggestions.Where(s => s.LibraryId == libraryId.Value).ToList();
-        
-        if (!string.IsNullOrEmpty(status))
-            suggestions = suggestions.Where(s => s.Status.ToLower() == status.ToLower()).ToList();
+        if (!string.IsNullOrEmpty(status) && Enum.TryParse<SuggestionStatus>(status, true, out var statusEnum))
+        {
+            suggestions = suggestions.Where(s => s.Status == statusEnum).ToList();
+        }
 
         return Ok(suggestions);
     }
@@ -44,13 +43,12 @@ public class BookSuggestionsController : ControllerBase
     {
         var suggestion = new BookPurchaseSuggestion
         {
-            BookTitle = createDto.BookTitle,
+            Title = createDto.Title,
             Author = createDto.Author,
             ISBN = createDto.ISBN,
             Reason = createDto.Reason,
-            SuggestedBy = createDto.SuggestedBy,
-            LibraryId = createDto.LibraryId,
-            Status = "Pending"
+            UserId = createDto.UserId,
+            Status = SuggestionStatus.Pending
         };
 
         var created = await _suggestionDAO.AddAsync(suggestion);
@@ -64,9 +62,12 @@ public class BookSuggestionsController : ControllerBase
         if (suggestion == null)
             return NotFound();
 
-        suggestion.Status = updateDto.Status;
-        suggestion.ReviewedBy = updateDto.ReviewedBy;
-        suggestion.ReviewNotes = updateDto.ReviewNotes;
+        if (Enum.TryParse<SuggestionStatus>(updateDto.Status, true, out var statusEnum))
+        {
+            suggestion.Status = statusEnum;
+        }
+        
+        suggestion.AdminNotes = updateDto.AdminNotes;
 
         await _suggestionDAO.UpdateAsync(suggestion);
         return Ok(suggestion);
@@ -85,17 +86,15 @@ public class BookSuggestionsController : ControllerBase
 
 public class CreateBookSuggestionDto
 {
-    public string BookTitle { get; set; } = string.Empty;
-    public string? Author { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
     public string? ISBN { get; set; }
-    public string? Reason { get; set; }
-    public Guid SuggestedBy { get; set; }
-    public Guid LibraryId { get; set; }
+    public string Reason { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
 }
 
 public class UpdateSuggestionStatusDto
 {
     public string Status { get; set; } = string.Empty;
-    public Guid? ReviewedBy { get; set; }
-    public string? ReviewNotes { get; set; }
+    public string? AdminNotes { get; set; }
 }

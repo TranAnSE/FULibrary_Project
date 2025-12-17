@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "New Materials";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary">
+            <i class="fas fa-star me-2"></i>New Materials This Month
+        </h2>
+        <p class="text-muted">Discover our latest additions to the collection</p>
+    </div>
+</div>
+
+@if (ViewBag.NewBooks != null && ((List<LibraryManagementClient.Models.BookDto>)ViewBag.NewBooks).Any())
+{
+    <div class="row">
+        @foreach (var book in (List<LibraryManagementClient.Models.BookDto>)ViewBag.NewBooks)
+        {
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card book-card shadow-sm h-100">
+                    @if (!string.IsNullOrEmpty(book.CoverImageUrl))
+                    {
+                        <img src="@book.CoverImageUrl" class="card-img-top" alt="@book.Title" />
+                    }
+                    else
+                    {
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-book text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            <span class="badge bg-accent">
+                                <i class="fas fa-star me-1"></i>NEW
+                            </span>
+                        </div>
+                        <h6 class="card-title" title="@book.Title">@book.Title</h6>
+                        <p class="text-muted text-sm mb-2">
+                            <i class="fas fa-user me-1"></i>
+                            @(book.Author ?? "Unknown Author")
+                        </p>
+                        @if (book.PublicationYear.HasValue)
+                        {
+                            <p class="text-muted text-xs mb-2">
+                                <i class="fas fa-calendar me-1"></i>@book.PublicationYear
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(book.CategoryName))
+                        {
+                            <p class="text-muted text-xs mb-2">
+                                <i class="fas fa-folder me-1"></i>@book.CategoryName
+                            </p>
+                        }
+                        <p class="text-muted text-xs mb-3">
+                            <i class="fas fa-building me-1"></i>@book.LibraryName
+                        </p>
+                        
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (book.AvailableCopies > 0)
+                            {
+                                <p class="text-success text-sm mb-2">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    @book.AvailableCopies available
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-danger text-sm mb-2">
+                                    <i class="fas fa-times-circle me-1"></i>
+                                    Not available
+                                </p>
+                            }
+                        }
+                        
+                        <div class="mt-auto">
+                            <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" 
+                               class="btn btn-sm btn-primary w-100">
+                                <i class="fas fa-info-circle me-1"></i>View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-inbox text-muted mb-3" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted">No new materials this month</h4>
+                    <p class="text-muted">Check back later for new additions to our collection</p>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a asp-controller="Search" asp-action="Index" class="btn btn-outline-primary">
+            <i class="fas fa-search me-2"></i>Search All Books
+        </a>
+    </div>
+</div>

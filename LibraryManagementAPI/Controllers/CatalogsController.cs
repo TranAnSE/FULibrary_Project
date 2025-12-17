@@ -2,6 +2,7 @@ using AutoMapper;
 using BusinessObjects;
 using LibraryManagementAPI.DTOs.Catalogs;
 using Microsoft.AspNetCore.Mvc;
+using Repositories;
 using Services;
 
 namespace LibraryManagementAPI.Controllers;

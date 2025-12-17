@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = "My Account";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary">
+            <i class="fas fa-user me-2"></i>My Account
+        </h2>
+        <p class="text-muted">Manage your library account and activities</p>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <a asp-controller="MyLoans" asp-action="Current" class="text-decoration-none">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-book-reader text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="card-title">My Loans</h5>
+                    <p class="text-muted small">View borrowed books</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a asp-controller="MyReservations" asp-action="Current" class="text-decoration-none">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-bookmark text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="card-title">Reservations</h5>
+                    <p class="text-muted small">Manage reservations</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a asp-controller="MyFines" asp-action="Index" class="text-decoration-none">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-dollar-sign text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="card-title">My Fines</h5>
+                    <p class="text-muted small">View pending fines</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a asp-controller="BookSuggestions" asp-action="Create" class="text-decoration-none">
+            <div class="card dashboard-card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-lightbulb text-primary mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="card-title">Suggest Book</h5>
+                    <p class="text-muted small">Request new books</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Account Summary -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Account Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-4 fw-bold">Name:</div>
+                    <div class="col-sm-8">@User.Identity?.Name</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4 fw-bold">Email:</div>
+                    <div class="col-sm-8">@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <a asp-controller="Auth" asp-action="ChangePassword" asp-area="" class="btn btn-outline-primary btn-sm mt-2">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Quick Stats
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="stat-number text-primary">--</div>
+                        <small class="text-muted">Active Loans</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-number text-accent">--</div>
+                        <small class="text-muted">Reservations</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-number text-danger">--</div>
+                        <small class="text-muted">Pending Fines</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
