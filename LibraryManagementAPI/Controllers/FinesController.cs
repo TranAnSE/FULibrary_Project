@@ -1,5 +1,6 @@
 using AutoMapper;
 using LibraryManagementAPI.DTOs.Fines;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 
@@ -7,6 +8,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Librarian")]
 public class FinesController : ControllerBase
 {
     private readonly IFineService _fineService;

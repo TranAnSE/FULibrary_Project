@@ -1,6 +1,7 @@
 using AutoMapper;
 using BusinessObjects;
 using LibraryManagementAPI.DTOs.Libraries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -10,6 +11,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Admin")]
 public class LibrariesController : ODataController
 {
     private readonly ILibraryService _libraryService;

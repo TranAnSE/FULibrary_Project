@@ -1,4 +1,5 @@
 using LibraryManagementAPI.DTOs.Reports;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 
@@ -6,6 +7,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Admin")]
 public class ReportsController : ControllerBase
 {
     private readonly IReportService _reportService;

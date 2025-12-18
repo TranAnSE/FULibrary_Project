@@ -1,11 +1,13 @@
 using BusinessObjects;
 using DataAccessObjects;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Borrower")]
 public class BookSuggestionsController : ControllerBase
 {
     private readonly IBookPurchaseSuggestionDAO _suggestionDAO;

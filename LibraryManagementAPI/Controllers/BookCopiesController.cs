@@ -2,12 +2,14 @@ using AutoMapper;
 using BusinessObjects;
 using DataAccessObjects;
 using LibraryManagementAPI.DTOs.Books;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Librarian")]
 public class BookCopiesController : ControllerBase
 {
     private readonly IBookCopyDAO _bookCopyDAO;

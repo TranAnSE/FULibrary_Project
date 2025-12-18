@@ -1,6 +1,7 @@
 using AutoMapper;
 using BusinessObjects;
 using LibraryManagementAPI.DTOs.Catalogs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using Services;
@@ -9,6 +10,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Librarian")]
 public class CatalogsController : ControllerBase
 {
     private readonly ICatalogService<Category> _categoryService;

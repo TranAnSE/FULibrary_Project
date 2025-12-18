@@ -1,5 +1,6 @@
 using AutoMapper;
 using LibraryManagementAPI.DTOs.Loans;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -9,6 +10,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Librarian")]
 public class LoansController : ODataController
 {
     private readonly ILoanService _loanService;

@@ -1,5 +1,6 @@
 using AutoMapper;
 using LibraryManagementAPI.DTOs.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -10,6 +11,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Admin")]
 public class UsersController : ODataController
 {
     private readonly IUserService _userService;

@@ -1,6 +1,7 @@
 using AutoMapper;
 using BusinessObjects;
 using LibraryManagementAPI.DTOs.Books;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -10,6 +11,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Librarian")]
 public class BooksController : ODataController
 {
     private readonly IBookService _bookService;
@@ -23,6 +25,7 @@ public class BooksController : ODataController
 
     [HttpGet]
     [EnableQuery]
+    [AllowAnonymous]
     public async Task<IActionResult> Get()
     {
         var books = await _bookService.GetAllAsync();
@@ -31,6 +34,7 @@ public class BooksController : ODataController
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id)
     {
         var book = await _bookService.GetWithCopiesAsync(id);
@@ -42,6 +46,7 @@ public class BooksController : ODataController
     }
 
     [HttpGet("search")]
+    [AllowAnonymous]
     public async Task<IActionResult> Search([FromQuery] string term)
     {
         var books = await _bookService.SearchAsync(term);
@@ -50,6 +55,7 @@ public class BooksController : ODataController
     }
 
     [HttpGet("new")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetNewBooks([FromQuery] Guid? libraryId)
     {
         var books = await _bookService.GetNewBooksThisMonthAsync(libraryId);
@@ -58,6 +64,7 @@ public class BooksController : ODataController
     }
 
     [HttpGet("library/{libraryId}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetByLibrary(Guid libraryId)
     {
         var books = await _bookService.GetByLibraryAsync(libraryId);

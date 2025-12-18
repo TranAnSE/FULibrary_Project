@@ -2,12 +2,14 @@ using AutoMapper;
 using BusinessObjects;
 using DataAccessObjects;
 using LibraryManagementAPI.DTOs.SystemSettings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Admin")]
 public class SystemSettingsController : ControllerBase
 {
     private readonly ISystemSettingsDAO _systemSettingsDAO;

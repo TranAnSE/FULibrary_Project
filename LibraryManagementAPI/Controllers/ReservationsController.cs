@@ -1,5 +1,6 @@
 using AutoMapper;
 using LibraryManagementAPI.DTOs.Reservations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 
@@ -7,6 +8,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Policy = "Librarian")]
 public class ReservationsController : ControllerBase
 {
     private readonly IReservationService _reservationService;
