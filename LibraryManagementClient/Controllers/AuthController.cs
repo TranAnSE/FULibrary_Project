@@ -52,12 +52,13 @@ public class AuthController : Controller
         HttpContext.Session.SetString("UserId", response.UserId.ToString());
         HttpContext.Session.SetString("FullName", response.FullName);
 
-        // Create claims
+        // Create claims including JWT token
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, response.UserId.ToString()),
             new Claim(ClaimTypes.Name, response.FullName),
-            new Claim(ClaimTypes.Email, response.Email)
+            new Claim(ClaimTypes.Email, response.Email),
+            new Claim("jwt_token", response.Token)  // Store JWT token as claim
         };
 
         foreach (var role in response.Roles)

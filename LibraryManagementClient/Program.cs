@@ -1,3 +1,4 @@
+using LibraryManagementClient.Middleware;
 using LibraryManagementClient.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,6 +62,10 @@ app.UseRouting();
 
 app.UseSession();
 app.UseAuthentication();
+
+// Add custom auth middleware
+app.UseMiddleware<AuthMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(

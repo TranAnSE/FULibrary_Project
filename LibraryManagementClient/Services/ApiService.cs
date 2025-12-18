@@ -22,8 +22,10 @@ public class ApiService : IApiService
     {
         var client = _httpClientFactory.CreateClient("FULibraryAPI");
         
-        // Try to get token from session
-        var token = _authToken ?? _httpContextAccessor.HttpContext?.Session.GetString("AuthToken");
+        // Try to get token from multiple sources
+        var token = _authToken ?? 
+                   _httpContextAccessor.HttpContext?.Session.GetString("AuthToken") ??
+                   _httpContextAccessor.HttpContext?.User?.FindFirst("jwt_token")?.Value;
         
         if (!string.IsNullOrEmpty(token))
         {
@@ -32,7 +34,7 @@ public class ApiService : IApiService
         }
         else
         {
-            _logger.LogWarning("No auth token found in session or service");
+            _logger.LogWarning("No auth token found in session, service, or claims");
         }
         
         return client;
@@ -51,6 +53,14 @@ public class ApiService : IApiService
             {
                 var error = await response.Content.ReadAsStringAsync();
                 _logger.LogWarning("GET {Endpoint} failed with {StatusCode}: {Error}", endpoint, response.StatusCode, error);
+                
+                // If we get 401, clear the token as it might be invalid
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogWarning("Received 401 Unauthorized, clearing auth token");
+                    ClearAuthToken();
+                }
+                
                 return default;
             }
 
@@ -82,6 +92,14 @@ public class ApiService : IApiService
             {
                 var error = await response.Content.ReadAsStringAsync();
                 _logger.LogWarning("POST {Endpoint} failed with {StatusCode}: {Error}", endpoint, response.StatusCode, error);
+                
+                // If we get 401, clear the token as it might be invalid
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogWarning("Received 401 Unauthorized, clearing auth token");
+                    ClearAuthToken();
+                }
+                
                 return default;
             }
 
@@ -106,7 +124,19 @@ public class ApiService : IApiService
             var response = await client.PostAsync(endpoint, null);
             
             if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("POST {Endpoint} failed with {StatusCode}: {Error}", endpoint, response.StatusCode, error);
+                
+                // If we get 401, clear the token as it might be invalid
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogWarning("Received 401 Unauthorized, clearing auth token");
+                    ClearAuthToken();
+                }
+                
                 return default;
+            }
 
             var content = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions 
@@ -131,7 +161,19 @@ public class ApiService : IApiService
             var response = await client.PutAsync(endpoint, content);
             
             if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("PUT {Endpoint} failed with {StatusCode}: {Error}", endpoint, response.StatusCode, error);
+                
+                // If we get 401, clear the token as it might be invalid
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogWarning("Received 401 Unauthorized, clearing auth token");
+                    ClearAuthToken();
+                }
+                
                 return default;
+            }
 
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(responseContent, new JsonSerializerOptions 

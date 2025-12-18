@@ -16,18 +16,26 @@ public class BooksController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(Guid id)
     {
-        var book = await _apiService.GetAsync<BookDetailDto>($"api/books/{id}");
-
-        if (book == null)
+        try
         {
-            TempData["Error"] = "Book not found.";
+            var book = await _apiService.GetAsync<BookDetailDto>($"api/books/{id}");
+
+            if (book == null)
+            {
+                TempData["Error"] = "Book not found.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // For guests, hide detailed availability information
+            ViewBag.ShowAvailability = User.Identity?.IsAuthenticated == true;
+
+            return View(book);
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Unable to fetch book details. Please try again later.";
             return RedirectToAction("Index", "Home");
         }
-
-        // For guests, hide detailed availability information
-        ViewBag.ShowAvailability = User.Identity?.IsAuthenticated == true;
-
-        return View(book);
     }
 
     [HttpGet]

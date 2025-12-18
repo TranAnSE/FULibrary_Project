@@ -18,9 +18,29 @@ namespace LibraryManagementClient.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Get new materials for display on home page
-            var newBooks = await _apiService.GetAsync<List<BookDto>>("api/books/new");
-            ViewBag.NewBooks = newBooks ?? new List<BookDto>();
+            try
+            {
+                // Test API connection first
+                _logger.LogInformation("Attempting to fetch new books from API");
+                var newBooks = await _apiService.GetAsync<List<BookDto>>("api/books/new");
+                
+                if (newBooks == null)
+                {
+                    _logger.LogWarning("API returned null for new books");
+                    ViewBag.NewBooks = new List<BookDto>();
+                }
+                else
+                {
+                    _logger.LogInformation("Successfully fetched {Count} new books", newBooks.Count);
+                    ViewBag.NewBooks = newBooks;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching new books from API");
+                ViewBag.NewBooks = new List<BookDto>();
+                TempData["Error"] = "Unable to connect to the library service. Please try again later.";
+            }
             
             return View();
         }
