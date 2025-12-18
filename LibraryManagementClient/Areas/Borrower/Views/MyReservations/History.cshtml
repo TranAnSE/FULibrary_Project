@@ -1,0 +1,109 @@
+@model List<dynamic>
+@{
+    ViewData["Title"] = "Reservation History";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-history me-2"></i>Reservation History
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Current" class="btn btn-primary">
+            <i class="fas fa-bookmark me-2"></i>Current Reservations
+        </a>
+        <a asp-controller="MyAccount" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Reserved Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                        <th>Outcome</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reservation in Model.OrderByDescending(r => r.ReservationDate))
+                    {
+                        bool isFulfilled = reservation.FulfilledDate != null;
+                        bool isCancelled = reservation.CancelledDate != null;
+                        bool isPending = reservation.Status == "Pending";
+                        
+                        <tr>
+                            <td><strong>@reservation.BookTitle</strong></td>
+                            <td>@((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")</td>
+                            <td>@((DateTime)reservation.ExpiryDate).ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @if (isPending)
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                                else if (isFulfilled)
+                                {
+                                    <span class="badge bg-success">Fulfilled</span>
+                                }
+                                else if (isCancelled)
+                                {
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Expired</span>
+                                }
+                            </td>
+                            <td>
+                                @if (isFulfilled)
+                                {
+                                    <small class="text-success">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Fulfilled on @((DateTime)reservation.FulfilledDate).ToString("MMM dd, yyyy")
+                                    </small>
+                                }
+                                else if (isCancelled)
+                                {
+                                    <small class="text-muted">
+                                        <i class="fas fa-times-circle me-1"></i>
+                                        Cancelled on @((DateTime)reservation.CancelledDate).ToString("MMM dd, yyyy")
+                                    </small>
+                                }
+                                else if (isPending)
+                                {
+                                    <small class="text-warning">
+                                        <i class="fas fa-clock me-1"></i>
+                                        Still pending
+                                    </small>
+                                }
+                                else
+                                {
+                                    <small class="text-danger">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Expired
+                                    </small>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-history text-muted mb-3" style="font-size: 4rem;"></i>
+                <h5 class="text-muted">No Reservation History</h5>
+                <p class="text-muted">You haven't made any book reservations yet.</p>
+            </div>
+        }
+    </div>
+</div>

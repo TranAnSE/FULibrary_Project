@@ -50,4 +50,31 @@ public class CatalogsController : Controller
         TempData[result != null ? "Success" : "Error"] = result != null ? "Publisher created." : "Failed to create publisher.";
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCategory(Guid id)
+    {
+        var result = await _apiService.DeleteAsync($"api/catalogs/categories/{id}");
+        TempData[result ? "Success" : "Error"] = result ? "Category deleted successfully." : "Failed to delete category.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteLanguage(Guid id)
+    {
+        var result = await _apiService.DeleteAsync($"api/catalogs/languages/{id}");
+        TempData[result ? "Success" : "Error"] = result ? "Language deleted successfully." : "Failed to delete language.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeletePublisher(Guid id)
+    {
+        var result = await _apiService.DeleteAsync($"api/catalogs/publishers/{id}");
+        TempData[result ? "Success" : "Error"] = result ? "Publisher deleted successfully." : "Failed to delete publisher.";
+        return RedirectToAction(nameof(Index));
+    }
 }

@@ -1,0 +1,102 @@
+@model List<dynamic>
+@{
+    ViewData["Title"] = "Overdue Loans";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>Overdue Loans
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>All Loans
+        </a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-check-circle text-success mb-3" style="font-size: 4rem;"></i>
+            <h5 class="text-success">No Overdue Loans!</h5>
+            <p class="text-muted">All loans are on time or returned.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Total Overdue:</strong> @Model.Count loan(s) need immediate attention.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Borrower</th>
+                            <th>Contact</th>
+                            <th>Book</th>
+                            <th>Due Date</th>
+                            <th>Overdue Days</th>
+                            <th>Potential Fine</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var loan in Model)
+                        {
+                            <tr class="table-danger">
+                                <td>
+                                    <strong>@loan.UserName</strong>
+                                </td>
+                                <td>
+                                    <small>@loan.UserEmail</small>
+                                </td>
+                                <td>@loan.BookTitle</td>
+                                <td>@((DateTime)loan.DueDate).ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge bg-danger">@loan.OverdueDays days</span>
+                                </td>
+                                <td>
+                                    <span class="text-danger">Calculate based on daily fine rate</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <form asp-action="Return" asp-route-id="@loan.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-success" title="Process Return" onclick="return confirm('Process return and calculate fine?')">
+                                                <i class="fas fa-check me-1"></i>Return
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-warning text-dark">
+            <h6 class="mb-0">
+                <i class="fas fa-bell me-2"></i>Recommended Actions
+            </h6>
+        </div>
+        <div class="card-body">
+            <ul class="mb-0">
+                <li>Contact borrowers immediately via email or phone</li>
+                <li>Calculate fines based on overdue days and daily fine rate</li>
+                <li>Process returns and create fine records</li>
+                <li>Consider suspending borrowing privileges for repeat offenders</li>
+            </ul>
+        </div>
+    </div>
+}

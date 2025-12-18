@@ -1,0 +1,128 @@
+@model List<dynamic>
+@{
+    ViewData["Title"] = "Manage Loans";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-exchange-alt me-2"></i>Manage Loans
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>New Loan
+        </a>
+        <a asp-action="Overdue" class="btn btn-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>Overdue
+        </a>
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Borrower</th>
+                        <th>Book</th>
+                        <th>Loan Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in Model)
+                    {
+                        bool isOverdue = loan.IsOverdue == true;
+                        bool isReturned = loan.ReturnDate != null;
+                        
+                        <tr class="@(isOverdue && !isReturned ? "table-danger" : "")">
+                            <td><strong>@loan.UserName</strong></td>
+                            <td>@loan.BookTitle</td>
+                            <td>@(((DateTime)loan.LoanDate).ToString("MMM dd, yyyy"))</td>
+                            <td>@(((DateTime)loan.DueDate).ToString("MMM dd, yyyy"))</td>
+                            <td>
+                                @if (isReturned)
+                                {
+                                    @(((DateTime)loan.ReturnDate).ToString("MMM dd, yyyy"))
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not returned</span>
+                                }
+                            </td>
+                            <td>
+                                @if (isReturned)
+                                {
+                                    <span class="badge bg-success">Returned</span>
+                                }
+                                else if (isOverdue)
+                                {
+                                    <span class="badge bg-danger">Overdue (@loan.OverdueDays days)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary">Active</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!isReturned)
+                                {
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <form asp-action="Return" asp-route-id="@loan.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-success" title="Return" onclick="return confirm('Mark this book as returned?')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        @if (!isOverdue && (int)loan.RenewalsRemaining > 0)
+                                        {
+                                            <form asp-action="Renew" asp-route-id="@loan.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-primary" title="Renew">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-exchange-alt text-muted mb-3" style="font-size: 4rem;"></i>
+                <h5 class="text-muted">No loans found</h5>
+                <p class="text-muted">Start by creating a new loan</p>
+            </div>
+        }
+    </div>
+</div>

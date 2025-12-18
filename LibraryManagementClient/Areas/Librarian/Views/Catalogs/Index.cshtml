@@ -1,0 +1,220 @@
+@{
+    ViewData["Title"] = "Browse Catalogs";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-folder me-2"></i>Browse Catalogs
+        </h2>
+        <p class="text-muted">View catalog information and manage shelf locations</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs mb-4" id="catalogTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button">
+            <i class="fas fa-tag me-2"></i>Categories
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="languages-tab" data-bs-toggle="tab" data-bs-target="#languages" type="button">
+            <i class="fas fa-language me-2"></i>Languages
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="publishers-tab" data-bs-toggle="tab" data-bs-target="#publishers" type="button">
+            <i class="fas fa-building me-2"></i>Publishers
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="shelf-tab" data-bs-toggle="tab" data-bs-target="#shelf" type="button">
+            <i class="fas fa-map-marker-alt me-2"></i>Shelf Locations
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="catalogTabsContent">
+    <!-- Categories Tab -->
+    <div class="tab-pane fade show active" id="categories" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-tag me-2"></i>Book Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var category in (List<LibraryManagementClient.Models.CategoryDto>)ViewBag.Categories)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">@category.Name</h6>
+                                    <p class="card-text small text-muted">@(category.Description ?? "No description")</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                @if (!((List<LibraryManagementClient.Models.CategoryDto>)ViewBag.Categories).Any())
+                {
+                    <p class="text-muted text-center py-3 mb-0">No categories available</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Languages Tab -->
+    <div class="tab-pane fade" id="languages" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-language me-2"></i>Available Languages</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var language in (List<LibraryManagementClient.Models.LanguageDto>)ViewBag.Languages)
+                    {
+                        <div class="col-md-3 mb-2">
+                            <span class="badge bg-primary me-2">@language.Name</span>
+                            @if (!string.IsNullOrEmpty(language.Code))
+                            {
+                                <small class="text-muted">(@language.Code)</small>
+                            }
+                        </div>
+                    }
+                </div>
+                @if (!((List<LibraryManagementClient.Models.LanguageDto>)ViewBag.Languages).Any())
+                {
+                    <p class="text-muted text-center py-3 mb-0">No languages available</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Publishers Tab -->
+    <div class="tab-pane fade" id="publishers" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-building me-2"></i>Publishers</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var publisher in (List<LibraryManagementClient.Models.PublisherDto>)ViewBag.Publishers)
+                            {
+                                <tr>
+                                    <td><strong>@publisher.Name</strong></td>
+                                    <td>@(publisher.Address ?? "N/A")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (!((List<LibraryManagementClient.Models.PublisherDto>)ViewBag.Publishers).Any())
+                {
+                    <p class="text-muted text-center py-3 mb-0">No publishers available</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Shelf Locations Tab -->
+    <div class="tab-pane fade" id="shelf" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-map-marker-alt me-2"></i>Shelf Locations
+                    <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addShelfModal">
+                        <i class="fas fa-plus me-1"></i>Add Location
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Description</th>
+                                <th>Library</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var location in (List<LibraryManagementClient.Models.ShelfLocationDto>)ViewBag.ShelfLocations)
+                            {
+                                <tr>
+                                    <td><code>@location.Code</code></td>
+                                    <td>@(location.Description ?? "N/A")</td>
+                                    <td>@location.LibraryName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (!((List<LibraryManagementClient.Models.ShelfLocationDto>)ViewBag.ShelfLocations).Any())
+                {
+                    <p class="text-muted text-center py-3 mb-0">No shelf locations configured</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Shelf Location Modal -->
+<div class="modal fade" id="addShelfModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CreateShelfLocation" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Shelf Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="code" required placeholder="e.g., A1-001" />
+                        <small class="form-text text-muted">Unique identifier for this shelf location</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="2" placeholder="Optional description"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

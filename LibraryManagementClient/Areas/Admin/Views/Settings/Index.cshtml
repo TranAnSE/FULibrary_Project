@@ -1,0 +1,102 @@
+@model List<LibraryManagementClient.Models.SystemSettingsDto>
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-cog me-2"></i>System Settings
+        </h2>
+        <p class="text-muted">Manage library-specific settings</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    @foreach (var settings in Model)
+    {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>@settings.LibraryName
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td><i class="fas fa-book text-primary me-2"></i><strong>Max Books:</strong></td>
+                                <td>@settings.MaxBooksPerBorrower</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-calendar text-primary me-2"></i><strong>Loan Duration:</strong></td>
+                                <td>@settings.LoanDurationDays days</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-redo text-primary me-2"></i><strong>Max Renewals:</strong></td>
+                                <td>@settings.MaxRenewals</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-clock text-primary me-2"></i><strong>Renewal Days:</strong></td>
+                                <td>@settings.RenewalDays days</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-dollar-sign text-danger me-2"></i><strong>Daily Fine:</strong></td>
+                                <td>$@settings.DailyFineRate</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>Lost Book Fine:</strong></td>
+                                <td>@settings.LostBookFinePercent%</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-bookmark text-primary me-2"></i><strong>Reservation Expiry:</strong></td>
+                                <td>@settings.ReservationExpiryDays days</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-libraryId="@settings.LibraryId" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-edit me-2"></i>Edit Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-cog text-muted mb-3" style="font-size: 4rem;"></i>
+            <h5 class="text-muted">No settings configured</h5>
+            <p class="text-muted">Create libraries first, then configure their settings</p>
+            <a asp-controller="Libraries" asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-building me-2"></i>Manage Libraries
+            </a>
+        </div>
+    </div>
+}

@@ -1,0 +1,72 @@
+@model List<dynamic>
+@{
+    ViewData["Title"] = "My Loan History";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-history me-2"></i>My Loan History
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Current" class="btn btn-primary">
+            <i class="fas fa-book-reader me-2"></i>Current Loans
+        </a>
+        <a asp-controller="MyAccount" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Loan Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in Model.Where(l => l.ReturnDate != null).OrderByDescending(l => l.ReturnDate))
+                    {
+                        var returnDate = (DateTime)loan.ReturnDate;
+                        var dueDate = (DateTime)loan.DueDate;
+                        bool wasOverdue = returnDate > dueDate;
+                        
+                        <tr>
+                            <td><strong>@loan.BookTitle</strong></td>
+                            <td>@((DateTime)loan.LoanDate).ToString("MMM dd, yyyy")</td>
+                            <td>@dueDate.ToString("MMM dd, yyyy")</td>
+                            <td>@returnDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @if (wasOverdue)
+                                {
+                                    <span class="badge bg-warning text-dark">Returned Late</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Returned On Time</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any(l => l.ReturnDate != null))
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-history text-muted mb-3" style="font-size: 4rem;"></i>
+                <h5 class="text-muted">No Loan History</h5>
+                <p class="text-muted">You haven't returned any books yet.</p>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,144 @@
+@model List<dynamic>
+@{
+    ViewData["Title"] = "Pending Reservations";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-warning">
+            <i class="fas fa-clock me-2"></i>Pending Reservations
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-list me-2"></i>All Reservations
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-check-circle text-success mb-3" style="font-size: 4rem;"></i>
+            <h5 class="text-success">No Pending Reservations!</h5>
+            <p class="text-muted">All reservations have been processed.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Total Pending:</strong> @Model.Count reservation(s) waiting to be fulfilled.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Priority</th>
+                            <th>Borrower</th>
+                            <th>Contact</th>
+                            <th>Book</th>
+                            <th>Reserved Date</th>
+                            <th>Expires On</th>
+                            <th>Days Left</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int priority = 1;
+                        }
+                        @foreach (var reservation in Model)
+                        {
+                            var expiryDate = (DateTime)reservation.ExpiryDate;
+                            var daysLeft = (expiryDate - DateTime.Now).Days;
+                            bool isUrgent = daysLeft <= 2;
+                            
+                            <tr class="@(isUrgent ? "table-warning" : "")">
+                                <td>
+                                    @if (priority == 1)
+                                    {
+                                        <i class="fas fa-star text-warning"></i>
+                                    }
+                                    else
+                                    {
+                                        @priority
+                                    }
+                                </td>
+                                <td><strong>@reservation.UserName</strong></td>
+                                <td><small>@reservation.UserEmail</small></td>
+                                <td>@reservation.BookTitle</td>
+                                <td>@((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")</td>
+                                <td>@expiryDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (isUrgent)
+                                    {
+                                        <span class="badge bg-danger">@daysLeft days</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@daysLeft days</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <form asp-action="Fulfill" asp-route-id="@reservation.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-success" title="Fulfill" onclick="return confirm('Fulfill this reservation and create a loan?')">
+                                                <i class="fas fa-check me-1"></i>Fulfill
+                                            </button>
+                                        </form>
+                                        <form asp-action="Cancel" asp-route-id="@reservation.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger" title="Cancel" onclick="return confirm('Cancel this reservation?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            priority++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">
+                <i class="fas fa-info-circle me-2"></i>How to Process Reservations
+            </h6>
+        </div>
+        <div class="card-body">
+            <ol class="mb-0">
+                <li><strong>Fulfill:</strong> Creates a loan for the borrower and marks the reservation as fulfilled</li>
+                <li><strong>Cancel:</strong> Cancels the reservation (e.g., book is damaged, borrower no longer needs it)</li>
+                <li><strong>Priority:</strong> Process reservations in chronological order (oldest first)</li>
+                <li><strong>Urgent:</strong> Reservations expiring in 2 days or less are highlighted</li>
+            </ol>
+        </div>
+    </div>
+}

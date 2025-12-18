@@ -1,0 +1,103 @@
+@model LibraryManagementClient.Models.CreateBookSuggestionDto
+@{
+    ViewData["Title"] = "Suggest a Book";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary">
+            <i class="fas fa-lightbulb me-2"></i>Suggest a Book
+        </h2>
+        <p class="text-muted">Help us expand our collection by suggesting books you'd like to read</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter the book title" required />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Author" class="form-label"></label>
+                        <input asp-for="Author" class="form-control" placeholder="Enter author name" required />
+                        <span asp-validation-for="Author" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ISBN" class="form-label">ISBN (Optional)</label>
+                        <input asp-for="ISBN" class="form-control" placeholder="e.g., 978-0-123456-78-9" />
+                        <span asp-validation-for="ISBN" class="text-danger"></span>
+                        <small class="form-text text-muted">If you know the ISBN, it helps us find the exact edition</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Reason" class="form-label"></label>
+                        <textarea asp-for="Reason" class="form-control" rows="4" placeholder="Why would you like this book to be added to our collection?" required></textarea>
+                        <span asp-validation-for="Reason" class="text-danger"></span>
+                        <small class="form-text text-muted">Tell us why this book would be valuable to have in the library</small>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Suggestion
+                        </button>
+                        <a asp-action="MyRequests" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-2"></i>View My Suggestions
+                        </a>
+                        <a asp-controller="MyAccount" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Guidelines
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-2"><strong>Good suggestions include:</strong></p>
+                <ul class="small">
+                    <li>Books related to your field of study</li>
+                    <li>Recent publications or new editions</li>
+                    <li>Books that would benefit other students</li>
+                    <li>Academic or reference materials</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>What Happens Next?
+                </h6>
+            </div>
+            <div class="card-body">
+                <ol class="small mb-0">
+                    <li>Library staff will review your suggestion</li>
+                    <li>They'll check availability and budget</li>
+                    <li>You'll be notified of the decision</li>
+                    <li>If approved, the book will be ordered</li>
+                    <li>You can track the status of your suggestion</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

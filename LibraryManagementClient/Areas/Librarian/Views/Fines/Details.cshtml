@@ -1,0 +1,232 @@
+@model LibraryManagementClient.Models.FineDto
+@{
+    ViewData["Title"] = "Fine Details";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-dollar-sign me-2"></i>Fine Details
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-controller="Borrowers" asp-action="Details" asp-route-id="@Model.UserId" class="btn btn-outline-secondary">
+            <i class="fas fa-user me-2"></i>View Borrower
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Fine Information -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Fine Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>Borrower:</strong> @Model.UserName
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Type:</strong> <span class="badge bg-warning">@Model.Type</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Original Amount:</strong> <span class="text-danger">$@Model.Amount.ToString("F2")</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Total Paid:</strong> <span class="text-success">$@Model.TotalPaid.ToString("F2")</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Balance:</strong> <span class="text-danger fw-bold">$@Model.Balance.ToString("F2")</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Status:</strong> 
+                        @if (Model.Status == "Paid")
+                        {
+                            <span class="badge bg-success">Paid</span>
+                        }
+                        else if (Model.Status == "Waived")
+                        {
+                            <span class="badge bg-info">Waived</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">@Model.Status</span>
+                        }
+                    </div>
+                    <div class="col-12 mb-3">
+                        <strong>Reason:</strong> @Model.Reason
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.BookTitle))
+                    {
+                        <div class="col-12 mb-3">
+                            <strong>Related Book:</strong> @Model.BookTitle
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.WaiverReason))
+                    {
+                        <div class="col-12 mb-3">
+                            <strong>Waiver Reason:</strong> @Model.WaiverReason
+                        </div>
+                        <div class="col-12">
+                            <strong>Waived By:</strong> @Model.WaivedByName
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Payment History</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Payments != null && Model.Payments.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Received By</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in Model.Payments)
+                                {
+                                    <tr>
+                                        <td>@payment.PaymentDate.ToString("MMM dd, yyyy")</td>
+                                        <td><span class="text-success">$@payment.Amount.ToString("F2")</span></td>
+                                        <td>@payment.ReceivedByName</td>
+                                        <td>@(payment.Notes ?? "—")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-3 mb-0">No payments recorded yet</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Record Payment -->
+        @if (Model.Status != "Paid" && Model.Status != "Waived" && Model.Balance > 0)
+        {
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-money-bill me-2"></i>Record Payment</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="RecordPayment" method="post">
+                        <input type="hidden" name="fineId" value="@Model.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Amount <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" name="amount" max="@Model.Balance" value="@Model.Balance" required />
+                            </div>
+                            <small class="form-text text-muted">Balance: $@Model.Balance.ToString("F2")</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="2"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-check me-2"></i>Record Payment
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-hand-holding-usd me-2"></i>Waive Fine</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Waive" method="post">
+                        <input type="hidden" name="fineId" value="@Model.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Reason <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="reason" rows="2" required placeholder="Reason for waiving the fine"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-info w-100" onclick="return confirm('Are you sure you want to waive this fine completely?')">
+                            <i class="fas fa-eraser me-2"></i>Waive Fine
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Reduce Fine</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Reduce" method="post">
+                        <input type="hidden" name="fineId" value="@Model.Id" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">New Amount <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" name="newAmount" max="@Model.Amount" required />
+                            </div>
+                            <small class="form-text text-muted">Current: $@Model.Amount.ToString("F2")</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Reason <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="reason" rows="2" required placeholder="Reason for reducing"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-warning w-100" onclick="return confirm('Are you sure you want to reduce this fine?')">
+                            <i class="fas fa-minus-circle me-2"></i>Reduce Fine
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="text-success">Fine Resolved</h5>
+                    <p class="text-muted mb-0">This fine has been @Model.Status.ToLower()</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

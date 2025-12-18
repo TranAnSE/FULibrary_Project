@@ -1,0 +1,157 @@
+@model LibraryManagementClient.Models.BookDto
+@{
+    ViewData["Title"] = "Add New Book";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary">
+            <i class="fas fa-book me-2"></i>Add New Book
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" required />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Author" class="form-label"></label>
+                            <input asp-for="Author" class="form-control" />
+                            <span asp-validation-for="Author" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ISBN" class="form-label"></label>
+                            <input asp-for="ISBN" class="form-control" />
+                            <span asp-validation-for="ISBN" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PublicationYear" class="form-label"></label>
+                            <input asp-for="PublicationYear" type="number" class="form-control" min="1000" max="9999" />
+                            <span asp-validation-for="PublicationYear" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Price" class="form-label"></label>
+                            <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+                    
+                    <h5 class="mb-3"><i class="fas fa-tags me-2"></i>Classification</h5>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="CategoryId" class="form-label">Category</label>
+                            <select asp-for="CategoryId" class="form-select">
+                                <option value="">Select Category</option>
+                                @foreach (var category in (List<LibraryManagementClient.Models.CategoryDto>)ViewBag.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="LanguageId" class="form-label">Language</label>
+                            <select asp-for="LanguageId" class="form-select">
+                                <option value="">Select Language</option>
+                                @foreach (var language in (List<LibraryManagementClient.Models.LanguageDto>)ViewBag.Languages)
+                                {
+                                    <option value="@language.Id">@language.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="PublisherId" class="form-label">Publisher</label>
+                            <select asp-for="PublisherId" class="form-select">
+                                <option value="">Select Publisher</option>
+                                @foreach (var publisher in (List<LibraryManagementClient.Models.PublisherDto>)ViewBag.Publishers)
+                                {
+                                    <option value="@publisher.Id">@publisher.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DDC" class="form-label">DDC (Dewey Decimal Classification)</label>
+                        <input asp-for="DDC" class="form-control" placeholder="e.g., 005.133" />
+                        <span asp-validation-for="DDC" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Subject" class="form-label"></label>
+                        <input asp-for="Subject" class="form-control" placeholder="Main subject of the book" />
+                        <span asp-validation-for="Subject" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Keyword" class="form-label"></label>
+                        <input asp-for="Keyword" class="form-control" placeholder="Keywords separated by commas" />
+                        <span asp-validation-for="Keyword" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CoverImageUrl" class="form-label">Cover Image URL</label>
+                        <input asp-for="CoverImageUrl" type="url" class="form-control" placeholder="https://example.com/cover.jpg" />
+                        <span asp-validation-for="CoverImageUrl" class="text-danger"></span>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Create Book
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="small">
+                    <li><strong>Title</strong> is required</li>
+                    <li>Fill in as much detail as possible for better searchability</li>
+                    <li>After creating the book, add copies using the "Add Copy" button</li>
+                    <li>ISBN should follow ISBN-10 or ISBN-13 format</li>
+                    <li>DDC helps with physical organization</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

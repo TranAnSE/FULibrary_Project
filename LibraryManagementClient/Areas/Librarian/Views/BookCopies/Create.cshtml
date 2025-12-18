@@ -1,0 +1,80 @@
+@model LibraryManagementClient.Models.BookCopyDto
+@{
+    ViewData["Title"] = "Add Book Copy";
+    var book = ViewBag.Book as LibraryManagementClient.Models.BookDto;
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary">
+            <i class="fas fa-copy me-2"></i>Add New Copy
+        </h2>
+        <p class="text-muted">Adding a copy for: <strong>@book?.Title</strong></p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <input type="hidden" name="bookId" value="@book?.Id" />
+
+                    <div class="mb-3">
+                        <label for="registrationNumber" class="form-label">Registration Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="registrationNumber" name="registrationNumber" required placeholder="e.g., BK-2024-001" />
+                        <small class="form-text text-muted">Unique identifier for this copy</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shelfLocationId" class="form-label">Shelf Location</label>
+                        <select class="form-select" id="shelfLocationId" name="shelfLocationId">
+                            <option value="">Select a shelf location</option>
+                            @foreach (var location in (List<LibraryManagementClient.Models.ShelfLocationDto>)ViewBag.ShelfLocations)
+                            {
+                                <option value="@location.Id">@location.Code - @location.Description</option>
+                            }
+                        </select>
+                        <small class="form-text text-muted">Physical location of this copy</small>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        The copy will be created with status <strong>"Available"</strong> by default.
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Add Copy
+                        </button>
+                        <a asp-controller="Books" asp-action="Details" asp-route-id="@book?.Id" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-book me-2"></i>Book Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-1"><strong>Title:</strong> @book?.Title</p>
+                <p class="small mb-1"><strong>Author:</strong> @(book?.Author ?? "N/A")</p>
+                <p class="small mb-1"><strong>ISBN:</strong> @(book?.ISBN ?? "N/A")</p>
+                <p class="small mb-0"><strong>Existing Copies:</strong> @book?.TotalCopies</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

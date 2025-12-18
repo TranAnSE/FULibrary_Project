@@ -1,0 +1,359 @@
+@{
+    ViewData["Title"] = "Manage Catalogs";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-folder me-2"></i>Manage Catalogs
+        </h2>
+        <p class="text-muted">Manage categories, languages, and publishers</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs mb-4" id="catalogTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button">
+            <i class="fas fa-tag me-2"></i>Categories
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="languages-tab" data-bs-toggle="tab" data-bs-target="#languages" type="button">
+            <i class="fas fa-language me-2"></i>Languages
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="publishers-tab" data-bs-toggle="tab" data-bs-target="#publishers" type="button">
+            <i class="fas fa-building me-2"></i>Publishers
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="catalogTabsContent">
+    <!-- Categories Tab -->
+    <div class="tab-pane fade show active" id="categories" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tag me-2"></i>Categories
+                    <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        <i class="fas fa-plus me-1"></i>Add Category
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.Categories != null)
+                            {
+                                @foreach (var category in (List<LibraryManagementClient.Models.CategoryDto>)ViewBag.Categories)
+                                {
+                                    <tr>
+                                        <td><strong>@category.Name</strong></td>
+                                        <td>@(category.Description ?? "N/A")</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="editCategory('@category.Id', '@category.Name', '@category.Description')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCategory('@category.Id', '@category.Name')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Languages Tab -->
+    <div class="tab-pane fade" id="languages" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-language me-2"></i>Languages
+                    <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addLanguageModal">
+                        <i class="fas fa-plus me-1"></i>Add Language
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Code</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.Languages != null)
+                            {
+                                @foreach (var language in (List<LibraryManagementClient.Models.LanguageDto>)ViewBag.Languages)
+                                {
+                                    <tr>
+                                        <td><strong>@language.Name</strong></td>
+                                        <td>@(language.Code ?? "N/A")</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteLanguage('@language.Id', '@language.Name')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Publishers Tab -->
+    <div class="tab-pane fade" id="publishers" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-building me-2"></i>Publishers
+                    <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addPublisherModal">
+                        <i class="fas fa-plus me-1"></i>Add Publisher
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.Publishers != null)
+                            {
+                                @foreach (var publisher in (List<LibraryManagementClient.Models.PublisherDto>)ViewBag.Publishers)
+                                {
+                                    <tr>
+                                        <td><strong>@publisher.Name</strong></td>
+                                        <td>@(publisher.Address ?? "N/A")</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deletePublisher('@publisher.Id', '@publisher.Name')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CreateCategory" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Language Modal -->
+<div class="modal fade" id="addLanguageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CreateLanguage" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Language</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Code (e.g., EN, VI)</label>
+                        <input type="text" class="form-control" name="code" maxlength="10" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Publisher Modal -->
+<div class="modal fade" id="addPublisherModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CreatePublisher" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Publisher</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" name="address" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function editCategory(id, name, description) {
+    // For now, alert - full implementation would use API
+    alert('Edit functionality: ' + name + '\nNote: Full implementation requires additional modal and API call.');
+}
+
+function deleteCategory(id, name) {
+    if (confirm('Are you sure you want to delete category "' + name + '"?')) {
+        // Create and submit form
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '@Url.Action("DeleteCategory", "Catalogs")';
+        
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'id';
+        input.value = id;
+        form.appendChild(input);
+        
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        var tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = '__RequestVerificationToken';
+        tokenInput.value = token;
+        form.appendChild(tokenInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function deleteLanguage(id, name) {
+    if (confirm('Are you sure you want to delete language "' + name + '"?')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '@Url.Action("DeleteLanguage", "Catalogs")';
+        
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'id';
+        input.value = id;
+        form.appendChild(input);
+        
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        var tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = '__RequestVerificationToken';
+        tokenInput.value = token;
+        form.appendChild(tokenInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function deletePublisher(id, name) {
+    if (confirm('Are you sure you want to delete publisher "' + name + '"?')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '@Url.Action("DeletePublisher", "Catalogs")';
+        
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'id';
+        input.value = id;
+        form.appendChild(input);
+        
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        var tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = '__RequestVerificationToken';
+        tokenInput.value = token;
+        form.appendChild(tokenInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+}

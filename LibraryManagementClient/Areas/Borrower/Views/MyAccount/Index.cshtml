@@ -14,7 +14,7 @@
 <!-- Quick Actions -->
 <div class="row mb-4">
     <div class="col-md-3 mb-3">
-        <a asp-controller="MyLoans" asp-action="Current" class="text-decoration-none">
+        <a asp-area="Borrower" asp-controller="MyLoans" asp-action="Current" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-book-reader text-primary mb-3" style="font-size: 3rem;"></i>
@@ -25,7 +25,7 @@
         </a>
     </div>
     <div class="col-md-3 mb-3">
-        <a asp-controller="MyReservations" asp-action="Current" class="text-decoration-none">
+        <a asp-area="Borrower" asp-controller="MyReservations" asp-action="Current" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-bookmark text-primary mb-3" style="font-size: 3rem;"></i>
@@ -36,7 +36,7 @@
         </a>
     </div>
     <div class="col-md-3 mb-3">
-        <a asp-controller="MyFines" asp-action="Index" class="text-decoration-none">
+        <a asp-area="Borrower" asp-controller="MyFines" asp-action="Index" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-dollar-sign text-primary mb-3" style="font-size: 3rem;"></i>
@@ -47,7 +47,7 @@
         </a>
     </div>
     <div class="col-md-3 mb-3">
-        <a asp-controller="BookSuggestions" asp-action="Create" class="text-decoration-none">
+        <a asp-area="Borrower" asp-controller="BookSuggestions" asp-action="Create" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-lightbulb text-primary mb-3" style="font-size: 3rem;"></i>

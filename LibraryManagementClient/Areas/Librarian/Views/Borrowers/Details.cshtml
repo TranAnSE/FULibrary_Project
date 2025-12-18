@@ -1,0 +1,248 @@
+@model LibraryManagementClient.Models.UserDto
+@{
+    ViewData["Title"] = "Borrower Details";
+    var loans = (List<dynamic>)ViewBag.Loans;
+    var reservations = (List<dynamic>)ViewBag.Reservations;
+    var fines = (List<LibraryManagementClient.Models.FineDto>)ViewBag.Fines;
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-user me-2"></i>@Model.FullName
+        </h2>
+        <p class="text-muted">@Model.Email</p>
+    </div>
+    <div class="col-md-6 text-end">
+        @if (Model.IsLocked)
+        {
+            <form asp-action="Unlock" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success" onclick="return confirm('Unlock this borrower account?')">
+                    <i class="fas fa-unlock me-2"></i>Unlock Account
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Lock" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-warning" onclick="return confirm('Lock this borrower account?')">
+                    <i class="fas fa-lock me-2"></i>Lock Account
+                </button>
+            </form>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <!-- Borrower Profile -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Profile</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Card Number:</strong> @(Model.CardNumber ?? "N/A")</p>
+                <p class="mb-2"><strong>Phone:</strong> @(Model.PhoneNumber ?? "N/A")</p>
+                <p class="mb-2"><strong>Home Library:</strong> @Model.HomeLibraryName</p>
+                <p class="mb-2">
+                    <strong>Status:</strong> 
+                    @if (Model.IsLocked)
+                    {
+                        <span class="badge bg-danger">Locked</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                </p>
+                <p class="mb-0"><strong>Member Since:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-2">
+                        <div class="stat-number text-primary">@loans.Count(l => l.ReturnDate == null)</div>
+                        <small class="text-muted">Active Loans</small>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="stat-number text-warning">@reservations.Count(r => r.Status == "Pending")</div>
+                        <small class="text-muted">Reservations</small>
+                    </div>
+                    <div class="col-12">
+                        <div class="stat-number text-danger">$@fines.Where(f => f.Status == "Pending").Sum(f => f.Balance).ToString("F2")</div>
+                        <small class="text-muted">Pending Fines</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Active Loans -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-book-reader me-2"></i>Active Loans (@loans.Count(l => l.ReturnDate == null))</h6>
+            </div>
+            <div class="card-body">
+                @if (loans.Any(l => l.ReturnDate == null))
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Loan Date</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var loan in loans.Where(l => l.ReturnDate == null))
+                                {
+                                    bool isOverdue = loan.IsOverdue == true;
+                                    <tr class="@(isOverdue ? "table-danger" : "")">
+                                        <td>@loan.BookTitle</td>
+                                        <td>@((DateTime)loan.LoanDate).ToString("MMM dd, yyyy")</td>
+                                        <td>@((DateTime)loan.DueDate).ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            @if (isOverdue)
+                                            {
+                                                <span class="badge bg-danger">Overdue</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-2 mb-0">No active loans</p>
+                }
+            </div>
+        </div>
+
+        <!-- Reservations -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-bookmark me-2"></i>Reservations (@reservations.Count(r => r.Status == "Pending"))</h6>
+            </div>
+            <div class="card-body">
+                @if (reservations.Any(r => r.Status == "Pending"))
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Reserved Date</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var reservation in reservations.Where(r => r.Status == "Pending"))
+                                {
+                                    <tr>
+                                        <td>@reservation.BookTitle</td>
+                                        <td>@((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")</td>
+                                        <td>@((DateTime)reservation.ExpiryDate).ToString("MMM dd, yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-2 mb-0">No active reservations</p>
+                }
+            </div>
+        </div>
+
+        <!-- Fines -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Fines (@fines.Count(f => f.Status == "Pending"))</h6>
+            </div>
+            <div class="card-body">
+                @if (fines.Any(f => f.Status == "Pending"))
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Paid</th>
+                                    <th>Balance</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var fine in fines.Where(f => f.Status == "Pending"))
+                                {
+                                    <tr>
+                                        <td>@fine.Type</td>
+                                        <td>$@fine.Amount.ToString("F2")</td>
+                                        <td>$@fine.TotalPaid.ToString("F2")</td>
+                                        <td><span class="text-danger">$@fine.Balance.ToString("F2")</span></td>
+                                        <td>
+                                            <a asp-controller="Fines" asp-action="Details" asp-route-id="@fine.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-success text-center py-2 mb-0">
+                        <i class="fas fa-check-circle me-2"></i>No pending fines
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+</style>

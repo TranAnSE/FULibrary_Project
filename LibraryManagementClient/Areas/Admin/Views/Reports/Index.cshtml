@@ -1,0 +1,169 @@
+@{
+    ViewData["Title"] = "System Reports";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-chart-line me-2"></i>System Reports
+        </h2>
+        <p class="text-muted">Overview of system-wide statistics and metrics</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (ViewBag.DashboardData != null)
+{
+    var data = ViewBag.DashboardData;
+    
+    <!-- Library Statistics Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>Library Statistics Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (data.LibraryStats != null)
+                    {
+                        <div class="row">
+                            @foreach (var stat in data.LibraryStats)
+                            {
+                                var libraryData = stat.Value;
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">@libraryData.LibraryName</h6>
+                                            <hr />
+                                            <div class="row text-center">
+                                                <div class="col-6 mb-2">
+                                                    <div class="stat-number text-primary">@libraryData.TotalBooks</div>
+                                                    <small class="text-muted">Total Books</small>
+                                                </div>
+                                                <div class="col-6 mb-2">
+                                                    <div class="stat-number text-success">@libraryData.AvailableCopies</div>
+                                                    <small class="text-muted">Available</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="stat-number text-warning">@libraryData.BorrowedCopies</div>
+                                                    <small class="text-muted">Borrowed</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="stat-number text-info">@libraryData.AvailabilityRatio.ToString("F1")%</div>
+                                                    <small class="text-muted">Availability</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No library statistics available</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Borrowed Books -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Top Borrowed Books (System-Wide)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (data.TopBorrowedBooks != null && data.TopBorrowedBooks.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Book Title</th>
+                                        <th>Library</th>
+                                        <th>Loan Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int rank = 1;
+                                    }
+                                    @foreach (var book in data.TopBorrowedBooks)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (rank == 1)
+                                                {
+                                                    <i class="fas fa-trophy text-warning"></i>
+                                                }
+                                                else if (rank == 2)
+                                                {
+                                                    <i class="fas fa-medal text-secondary"></i>
+                                                }
+                                                else if (rank == 3)
+                                                {
+                                                    <i class="fas fa-medal" style="color: #cd7f32;"></i>
+                                                }
+                                                else
+                                                {
+                                                    @rank
+                                                }
+                                            </td>
+                                            <td><strong>@book.BookTitle</strong></td>
+                                            <td>@book.LibraryName</td>
+                                            <td>
+                                                <span class="badge bg-primary">@book.LoanCount loans</span>
+                                            </td>
+                                        </tr>
+                                        rank++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No borrowing data available yet</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-chart-line text-muted mb-3" style="font-size: 4rem;"></i>
+            <h5 class="text-muted">No Report Data Available</h5>
+            <p class="text-muted">Unable to load dashboard statistics at this time.</p>
+        </div>
+    </div>
+}
+
+<style>
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+</style>

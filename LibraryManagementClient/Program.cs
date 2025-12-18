@@ -24,6 +24,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.Name = ".FULibrary.Session";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // For development
+    options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
 // Add Authentication
@@ -36,6 +38,9 @@ builder.Services.AddAuthentication("CookieAuth")
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
         options.Cookie.Name = ".FULibrary.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None; // For development
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
 builder.Services.AddHttpContextAccessor();

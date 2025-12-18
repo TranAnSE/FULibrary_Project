@@ -1,0 +1,157 @@
+@model List<LibraryManagementClient.Models.FineDto>
+@{
+    ViewData["Title"] = "My Fines";
+    var pendingFines = Model.Where(f => f.Status == "Pending").ToList();
+    var paidFines = Model.Where(f => f.Status == "Paid" || f.Status == "Waived").ToList();
+    decimal totalPending = ViewBag.TotalPending ?? 0m;
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-dollar-sign me-2"></i>My Fines
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-controller="MyAccount" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to My Account
+        </a>
+    </div>
+</div>
+
+@if (totalPending > 0)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Outstanding Balance:</strong> $@totalPending.ToString("F2") - Please pay at the library.
+    </div>
+}
+else
+{
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>Great!</strong> You have no outstanding fines.
+    </div>
+}
+
+<!-- Pending Fines -->
+@if (pendingFines.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Pending Fines (@pendingFines.Count)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Book</th>
+                            <th>Reason</th>
+                            <th>Amount</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var fine in pendingFines)
+                        {
+                            <tr>
+                                <td><span class="badge bg-warning text-dark">@fine.Type</span></td>
+                                <td>@(fine.BookTitle ?? "N/A")</td>
+                                <td>@fine.Reason</td>
+                                <td>$@fine.Amount.ToString("F2")</td>
+                                <td>$@fine.TotalPaid.ToString("F2")</td>
+                                <td><strong class="text-danger">$@fine.Balance.ToString("F2")</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-warning">
+                            <td colspan="5" class="text-end"><strong>Total Pending:</strong></td>
+                            <td><strong class="text-danger">$@totalPending.ToString("F2")</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Payment Instructions:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Visit your library's circulation desk to pay fines</li>
+                    <li>Payment methods accepted: Cash, Card (check with your library)</li>
+                    <li>Outstanding fines may prevent you from borrowing more books</li>
+                    <li>Contact library staff if you have questions about your fines</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Paid/Waived Fines History -->
+@if (paidFines.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Payment History (@paidFines.Count)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Book</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var fine in paidFines)
+                        {
+                            <tr>
+                                <td>@fine.Type</td>
+                                <td>@(fine.BookTitle ?? "N/A")</td>
+                                <td>$@fine.Amount.ToString("F2")</td>
+                                <td>
+                                    @if (fine.Status == "Paid")
+                                    {
+                                        <span class="badge bg-success">Paid</span>
+                                    }
+                                    else if (fine.Status == "Waived")
+                                    {
+                                        <span class="badge bg-info">Waived</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (fine.Status == "Waived" && !string.IsNullOrEmpty(fine.WaiverReason))
+                                    {
+                                        <small class="text-muted">@fine.WaiverReason</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">—</small>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-smile text-success mb-3" style="font-size: 4rem;"></i>
+            <h5 class="text-success">No Fines!</h5>
+            <p class="text-muted">You have a clean record. Keep it up!</p>
+        </div>
+    </div>
+}

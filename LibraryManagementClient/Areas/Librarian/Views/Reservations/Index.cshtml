@@ -1,0 +1,116 @@
+@model List<dynamic>
+@{
+    ViewData["Title"] = "All Reservations";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-bookmark me-2"></i>All Reservations
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Pending" class="btn btn-warning">
+            <i class="fas fa-clock me-2"></i>Pending Only
+        </a>
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Borrower</th>
+                        <th>Book</th>
+                        <th>Reserved Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reservation in Model)
+                    {
+                        bool isPending = reservation.Status == "Pending";
+                        bool isFulfilled = reservation.FulfilledDate != null;
+                        bool isCancelled = reservation.CancelledDate != null;
+                        
+                        <tr>
+                            <td><strong>@reservation.UserName</strong></td>
+                            <td>@reservation.BookTitle</td>
+                            <td>@((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")</td>
+                            <td>@((DateTime)reservation.ExpiryDate).ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @if (isFulfilled)
+                                {
+                                    <span class="badge bg-success">Fulfilled</span>
+                                }
+                                else if (isCancelled)
+                                {
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                }
+                                else if (isPending)
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@reservation.Status</span>
+                                }
+                            </td>
+                            <td>
+                                @if (isPending)
+                                {
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <form asp-action="Fulfill" asp-route-id="@reservation.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-success" title="Fulfill" onclick="return confirm('Create a loan for this reservation?')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="Cancel" asp-route-id="@reservation.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger" title="Cancel" onclick="return confirm('Cancel this reservation?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-bookmark text-muted mb-3" style="font-size: 4rem;"></i>
+                <h5 class="text-muted">No reservations found</h5>
+                <p class="text-muted">Borrowers can reserve books from the catalog</p>
+            </div>
+        }
+    </div>
+</div>

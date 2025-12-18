@@ -14,7 +14,7 @@
 <!-- Quick Actions -->
 <div class="row mb-4">
     <div class="col-md-3 mb-3">
-        <a asp-controller="Users" asp-action="Index" class="text-decoration-none">
+        <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-users text-primary mb-3" style="font-size: 3rem;"></i>
@@ -25,7 +25,7 @@
         </a>
     </div>
     <div class="col-md-3 mb-3">
-        <a asp-controller="Libraries" asp-action="Index" class="text-decoration-none">
+        <a asp-area="Admin" asp-controller="Libraries" asp-action="Index" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-building text-primary mb-3" style="font-size: 3rem;"></i>
@@ -36,7 +36,7 @@
         </a>
     </div>
     <div class="col-md-3 mb-3">
-        <a asp-controller="Settings" asp-action="Index" class="text-decoration-none">
+        <a asp-area="Admin" asp-controller="Settings" asp-action="Index" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-cog text-primary mb-3" style="font-size: 3rem;"></i>
@@ -47,7 +47,7 @@
         </a>
     </div>
     <div class="col-md-3 mb-3">
-        <a asp-controller="Catalogs" asp-action="Index" class="text-decoration-none">
+        <a asp-area="Admin" asp-controller="Catalogs" asp-action="Index" class="text-decoration-none">
             <div class="card dashboard-card shadow-sm">
                 <div class="card-body text-center">
                     <i class="fas fa-folder text-primary mb-3" style="font-size: 3rem;"></i>
@@ -144,17 +144,17 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 mb-2">
-                        <a asp-controller="Users" asp-action="Create" class="btn btn-outline-primary w-100">
+                        <a asp-area="Admin" asp-controller="Users" asp-action="Create" class="btn btn-outline-primary w-100">
                             <i class="fas fa-user-plus me-2"></i>Add New User
                         </a>
                     </div>
                     <div class="col-md-4 mb-2">
-                        <a asp-controller="Libraries" asp-action="Create" class="btn btn-outline-primary w-100">
+                        <a asp-area="Admin" asp-controller="Libraries" asp-action="Create" class="btn btn-outline-primary w-100">
                             <i class="fas fa-plus me-2"></i>Add New Library
                         </a>
                     </div>
                     <div class="col-md-4 mb-2">
-                        <a asp-controller="Reports" asp-action="Index" class="btn btn-outline-primary w-100">
+                        <a asp-area="Admin" asp-controller="Reports" asp-action="Index" class="btn btn-outline-primary w-100">
                             <i class="fas fa-chart-line me-2"></i>View Reports
                         </a>
                     </div>

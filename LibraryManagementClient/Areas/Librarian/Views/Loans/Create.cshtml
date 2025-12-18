@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Create New Loan";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary">
+            <i class="fas fa-plus me-2"></i>Create New Loan
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        To create a loan, you need both the <strong>Borrower ID</strong> and <strong>Book Copy ID</strong>.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="userId" class="form-label">Borrower ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="userId" name="userId" required placeholder="Enter borrower's user ID" />
+                        <small class="form-text text-muted">You can find the borrower ID from the Borrowers management page</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bookCopyId" class="form-label">Book Copy ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="bookCopyId" name="bookCopyId" required placeholder="Enter book copy ID" />
+                        <small class="form-text text-muted">Find available copies from the Books management page</small>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> The system will automatically calculate the due date based on library settings.
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Create Loan
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Quick Guide
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small mb-2"><strong>Steps:</strong></p>
+                <ol class="small">
+                    <li>Search for the borrower in <a asp-controller="Borrowers" asp-action="Index" target="_blank">Borrowers</a></li>
+                    <li>Copy their User ID</li>
+                    <li>Find an available book copy in <a asp-controller="Books" asp-action="Index" target="_blank">Books</a></li>
+                    <li>Copy the Book Copy ID</li>
+                    <li>Fill in both IDs and submit</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>System Rules
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li>Borrower must not exceed maximum books limit</li>
+                    <li>Book copy must be available</li>
+                    <li>Borrower account must not be locked</li>
+                    <li>Due date is calculated automatically</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

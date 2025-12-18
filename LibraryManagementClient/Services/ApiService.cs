@@ -8,12 +8,14 @@ public class ApiService : IApiService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<ApiService> _logger;
     private string? _authToken;
 
-    public ApiService(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+    public ApiService(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ILogger<ApiService> logger)
     {
         _httpClientFactory = httpClientFactory;
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     private HttpClient GetClient()
@@ -25,7 +27,12 @@ public class ApiService : IApiService
         
         if (!string.IsNullOrEmpty(token))
         {
+            _logger.LogInformation("Using auth token for API request");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+        else
+        {
+            _logger.LogWarning("No auth token found in session or service");
         }
         
         return client;
@@ -36,10 +43,16 @@ public class ApiService : IApiService
         try
         {
             var client = GetClient();
+            _logger.LogInformation("GET Request: {Endpoint}", endpoint);
+            
             var response = await client.GetAsync(endpoint);
             
             if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("GET {Endpoint} failed with {StatusCode}: {Error}", endpoint, response.StatusCode, error);
                 return default;
+            }
 
             var content = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions 
@@ -47,8 +60,9 @@ public class ApiService : IApiService
                 PropertyNameCaseInsensitive = true 
             });
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Exception in GET {Endpoint}", endpoint);
             return default;
         }
     }
@@ -61,10 +75,15 @@ public class ApiService : IApiService
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             
+            _logger.LogInformation("POST Request: {Endpoint}", endpoint);
             var response = await client.PostAsync(endpoint, content);
             
             if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("POST {Endpoint} failed with {StatusCode}: {Error}", endpoint, response.StatusCode, error);
                 return default;
+            }
 
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(responseContent, new JsonSerializerOptions 
@@ -72,8 +91,9 @@ public class ApiService : IApiService
                 PropertyNameCaseInsensitive = true 
             });
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Exception in POST {Endpoint}", endpoint);
             return default;
         }
     }

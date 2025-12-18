@@ -1,0 +1,137 @@
+@model List<dynamic>
+@{
+    ViewData["Title"] = "My Current Loans";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-book-reader me-2"></i>My Current Loans
+        </h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="History" class="btn btn-outline-secondary">
+            <i class="fas fa-history me-2"></i>View History
+        </a>
+        <a asp-controller="MyAccount" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-book-open text-muted mb-3" style="font-size: 4rem;"></i>
+            <h5 class="text-muted">No Active Loans</h5>
+            <p class="text-muted">You don't have any books checked out currently.</p>
+            <a asp-area="" asp-controller="Search" asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Browse Books
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var loan in Model)
+        {
+            bool isOverdue = loan.IsOverdue == true;
+            var daysLeft = ((DateTime)loan.DueDate - DateTime.Now).Days;
+            bool dueSoon = daysLeft <= 3 && daysLeft >= 0;
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm h-100 @(isOverdue ? "border-danger" : dueSoon ? "border-warning" : "")">
+                    @if (!string.IsNullOrEmpty(loan.BookCoverImageUrl?.ToString()))
+                    {
+                        <img src="@loan.BookCoverImageUrl" class="card-img-top" alt="@loan.BookTitle" style="height: 200px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                            <i class="fas fa-book text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h6 class="card-title">@loan.BookTitle</h6>
+                        <p class="card-text small">
+                            <i class="fas fa-calendar me-1"></i>
+                            <strong>Loan Date:</strong> @((DateTime)loan.LoanDate).ToString("MMM dd, yyyy")
+                        </p>
+                        <p class="card-text small">
+                            <i class="fas fa-calendar-check me-1"></i>
+                            <strong>Due Date:</strong> @((DateTime)loan.DueDate).ToString("MMM dd, yyyy")
+                        </p>
+                        @if (isOverdue)
+                        {
+                            <div class="alert alert-danger py-2 mb-2">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                <strong>Overdue by @loan.OverdueDays days!</strong>
+                            </div>
+                        }
+                        else if (dueSoon)
+                        {
+                            <div class="alert alert-warning py-2 mb-2">
+                                <i class="fas fa-clock me-1"></i>
+                                <strong>Due in @daysLeft days</strong>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="card-text small text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                @daysLeft days remaining
+                            </p>
+                        }
+                        <p class="card-text small">
+                            <i class="fas fa-redo me-1"></i>
+                            <strong>Renewals left:</strong> @loan.RenewalsRemaining
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        @if (!isOverdue && (int)loan.RenewalsRemaining > 0)
+                        {
+                            <form asp-action="Renew" asp-route-id="@loan.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary btn-sm w-100" onclick="return confirm('Renew this loan?')">
+                                    <i class="fas fa-redo me-2"></i>Renew Loan
+                                </button>
+                            </form>
+                        }
+                        else if (isOverdue)
+                        {
+                            <div class="text-center text-danger small">
+                                <i class="fas fa-ban me-1"></i>
+                                Please return this book to the library
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                No renewals available
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

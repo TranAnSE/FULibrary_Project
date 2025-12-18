@@ -1,0 +1,188 @@
+@model LibraryManagementClient.Models.BookDetailDto
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary">
+            <i class="fas fa-book me-2"></i>@Model.Title
+        </h2>
+        @if (Model.Author != null)
+        {
+            <p class="text-muted mb-0">by @Model.Author</p>
+        }
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Edit
+        </a>
+        <a asp-controller="BookCopies" asp-action="Create" asp-route-bookId="@Model.Id" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Add Copy
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+        {
+            <img src="@Model.CoverImageUrl" class="img-fluid rounded shadow-sm mb-3" alt="@Model.Title" />
+        }
+        else
+        {
+            <div class="card bg-light text-center p-5 mb-3">
+                <i class="fas fa-book text-muted" style="font-size: 5rem;"></i>
+                <p class="text-muted mt-2">No cover image</p>
+            </div>
+        }
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-2">
+                        <div class="stat-number text-success">@Model.Copies.Count(c => c.Status == "Available")</div>
+                        <small class="text-muted">Available</small>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="stat-number text-secondary">@Model.Copies.Count</div>
+                        <small class="text-muted">Total Copies</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <!-- Book Information -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Book Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>ISBN:</strong> @(Model.ISBN ?? "N/A")
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Publication Year:</strong> @(Model.PublicationYear?.ToString() ?? "N/A")
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Category:</strong> @(Model.CategoryName ?? "N/A")
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Language:</strong> @(Model.LanguageName ?? "N/A")
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Publisher:</strong> @(Model.PublisherName ?? "N/A")
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Library:</strong> @Model.LibraryName
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>DDC:</strong> @(Model.DDC ?? "N/A")
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Price:</strong> @(Model.Price.HasValue ? $"${Model.Price:F2}" : "N/A")
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Subject))
+                    {
+                        <div class="col-12 mb-3">
+                            <strong>Subject:</strong> @Model.Subject
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Keyword))
+                    {
+                        <div class="col-12 mb-3">
+                            <strong>Keywords:</strong> 
+                            @foreach (var keyword in Model.Keyword.Split(','))
+                            {
+                                <span class="badge bg-secondary me-1">@keyword.Trim()</span>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="col-12">
+                            <strong>Description:</strong>
+                            <p class="mt-2">@Model.Description</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Copies -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-copy me-2"></i>Book Copies (@Model.Copies.Count)
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Copies.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Registration Number</th>
+                                    <th>Shelf Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var copy in Model.Copies)
+                                {
+                                    <tr>
+                                        <td><code>@copy.RegistrationNumber</code></td>
+                                        <td>@(copy.ShelfLocationCode ?? "N/A")</td>
+                                        <td>
+                                            @if (copy.Status == "Available")
+                                            {
+                                                <span class="badge bg-success">Available</span>
+                                            }
+                                            else if (copy.Status == "Borrowed")
+                                            {
+                                                <span class="badge bg-warning text-dark">Borrowed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@copy.Status</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a asp-controller="BookCopies" asp-action="Edit" asp-route-id="@copy.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-3">
+                        No copies available. <a asp-controller="BookCopies" asp-action="Create" asp-route-bookId="@Model.Id">Add a copy</a>
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+</style>
