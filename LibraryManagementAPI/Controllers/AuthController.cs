@@ -37,7 +37,8 @@ public class AuthController : ControllerBase
             FullName = user.FullName,
             Token = token!,
             MustChangePassword = user.MustChangePassword,
-            Roles = roles
+            Roles = roles,
+            AssignedLibraryId = user.AssignedLibraryId
         };
 
         return Ok(response);

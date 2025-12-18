@@ -8,4 +8,5 @@ public class LoginResponseDto
     public string Token { get; set; } = null!;
     public bool MustChangePassword { get; set; }
     public List<string> Roles { get; set; } = new();
+    public Guid? AssignedLibraryId { get; set; }
 }

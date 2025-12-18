@@ -68,4 +68,5 @@ public class LoginResponseDto
     public string Token { get; set; } = string.Empty;
     public bool MustChangePassword { get; set; }
     public List<string> Roles { get; set; } = new();
+    public Guid? AssignedLibraryId { get; set; }
 }

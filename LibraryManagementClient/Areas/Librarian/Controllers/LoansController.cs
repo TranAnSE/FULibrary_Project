@@ -19,8 +19,8 @@ public class LoansController : Controller
     public async Task<IActionResult> Index()
     {
         // API automatically filters by librarian's assigned library through middleware
-        var loans = await _apiService.GetAsync<List<dynamic>>("api/loans");
-        return View(loans ?? new List<dynamic>());
+        var loans = await _apiService.GetAsync<List<LoanDto>>("api/loans");
+        return View(loans ?? new List<LoanDto>());
     }
 
     public IActionResult Create()
@@ -56,11 +56,11 @@ public class LoansController : Controller
         // If Registration Number provided, find the book copy
         if (!string.IsNullOrEmpty(model.RegistrationNumber))
         {
-            var bookCopy = await _apiService.GetAsync<dynamic>($"api/bookcopies/registration/{model.RegistrationNumber}");
+            var bookCopy = await _apiService.GetAsync<BookCopySearchDto>($"api/bookcopies/registration/{model.RegistrationNumber}");
             if (bookCopy != null)
             {
-                model.BookCopyId = Guid.Parse(bookCopy.id.ToString());
-                model.BookTitle = bookCopy.bookTitle;
+                model.BookCopyId = bookCopy.Id;
+                model.BookTitle = bookCopy.BookTitle;
             }
             else
             {
@@ -69,16 +69,24 @@ public class LoansController : Controller
             }
         }
 
-        var result = await _apiService.PostAsync<dynamic>("api/loans", new { model.UserId, model.BookCopyId });
-        
-        if (result != null)
+        try
         {
-            TempData["Success"] = "Loan created successfully.";
-            return RedirectToAction(nameof(Index));
-        }
+            var result = await _apiService.PostAsync<LoanDto>("api/loans", new { model.UserId, model.BookCopyId });
 
-        TempData["Error"] = "Failed to create loan.";
-        return View(model);
+            if (result != null)
+            {
+                TempData["Success"] = "Loan created successfully.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Error"] = "Failed to create loan.";
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Failed to create loan: {ex.Message}";
+            return View(model);
+        }
     }
 
     [HttpGet]
@@ -91,7 +99,7 @@ public class LoansController : Controller
     [HttpGet]
     public async Task<IActionResult> SearchBookCopy(string registrationNumber)
     {
-        var bookCopy = await _apiService.GetAsync<dynamic>($"api/bookcopies/registration/{registrationNumber}");
+        var bookCopy = await _apiService.GetAsync<BookCopySearchDto>($"api/bookcopies/registration/{registrationNumber}");
         return Json(bookCopy);
     }
 
@@ -115,7 +123,7 @@ public class LoansController : Controller
 
     public async Task<IActionResult> Overdue()
     {
-        var loans = await _apiService.GetAsync<List<dynamic>>("api/loans/overdue");
-        return View(loans ?? new List<dynamic>());
+        var loans = await _apiService.GetAsync<List<LoanDto>>("api/loans/overdue");
+        return View(loans ?? new List<LoanDto>());
     }
 }

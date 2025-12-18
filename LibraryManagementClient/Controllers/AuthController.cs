@@ -52,6 +52,12 @@ public class AuthController : Controller
         HttpContext.Session.SetString("UserId", response.UserId.ToString());
         HttpContext.Session.SetString("FullName", response.FullName);
 
+        // Store AssignedLibraryId for librarians
+        if (response.AssignedLibraryId.HasValue)
+        {
+            HttpContext.Session.SetString("AssignedLibraryId", response.AssignedLibraryId.Value.ToString());
+        }
+
         // Create claims including JWT token
         var claims = new List<Claim>
         {

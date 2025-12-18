@@ -1,4 +1,4 @@
-@model List<dynamic>
+@model List<LibraryManagementClient.Models.LoanDto>
 @{
     ViewData["Title"] = "Overdue Loans";
 }
@@ -59,7 +59,7 @@ else
                                     <small>@loan.UserEmail</small>
                                 </td>
                                 <td>@loan.BookTitle</td>
-                                <td>@((DateTime)loan.DueDate).ToString("MMM dd, yyyy")</td>
+                                <td>@loan.DueDate.ToString("MMM dd, yyyy")</td>
                                 <td>
                                     <span class="badge bg-danger">@loan.OverdueDays days</span>
                                 </td>

@@ -26,14 +26,24 @@ public class LoansController : ODataController
     [EnableQuery]
     public async Task<IActionResult> Get([FromQuery] Guid? userId, [FromQuery] Guid? libraryId)
     {
+        // Get libraryId from middleware context (for Librarian scope)
+        var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
+        var filterLibraryId = scopedLibraryId ?? libraryId;
+
         IEnumerable<BusinessObjects.Loan> loans;
 
         if (userId.HasValue)
+        {
             loans = await _loanService.GetByUserAsync(userId.Value);
-        else if (libraryId.HasValue)
-            loans = await _loanService.GetByLibraryAsync(libraryId.Value);
+        }
+        else if (filterLibraryId.HasValue)
+        {
+            loans = await _loanService.GetByLibraryAsync(filterLibraryId.Value);
+        }
         else
-            return BadRequest("Either userId or libraryId is required");
+        {
+            return BadRequest(new { message = "Either userId or libraryId is required. Librarians should have library scope automatically applied." });
+        }
 
         var loanDtos = _mapper.Map<List<LoanDto>>(loans);
         return Ok(loanDtos);
@@ -59,17 +69,39 @@ public class LoansController : ODataController
     }
 
     [HttpGet("overdue")]
-    public async Task<IActionResult> GetOverdue()
+    public async Task<IActionResult> GetOverdue([FromQuery] Guid? libraryId)
     {
+        // Get libraryId from middleware context (for Librarian scope)
+        var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
+        var filterLibraryId = scopedLibraryId ?? libraryId;
+
         var loans = await _loanService.GetOverdueLoansAsync();
+
+        // Apply library filter if applicable
+        if (filterLibraryId.HasValue)
+        {
+            loans = loans.Where(l => l.LibraryId == filterLibraryId.Value);
+        }
+
         var loanDtos = _mapper.Map<List<LoanDto>>(loans);
         return Ok(loanDtos);
     }
 
     [HttpGet("due-soon")]
-    public async Task<IActionResult> GetDueSoon([FromQuery] int days = 7)
+    public async Task<IActionResult> GetDueSoon([FromQuery] int days = 7, [FromQuery] Guid? libraryId = null)
     {
+        // Get libraryId from middleware context (for Librarian scope)
+        var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
+        var filterLibraryId = scopedLibraryId ?? libraryId;
+
         var loans = await _loanService.GetDueSoonAsync(days);
+
+        // Apply library filter if applicable
+        if (filterLibraryId.HasValue)
+        {
+            loans = loans.Where(l => l.LibraryId == filterLibraryId.Value);
+        }
+
         var loanDtos = _mapper.Map<List<LoanDto>>(loans);
         return Ok(loanDtos);
     }
@@ -79,11 +111,23 @@ public class LoansController : ODataController
     {
         try
         {
+            // Get libraryId from middleware context (for Librarian scope)
+            // If not set by middleware, use the one from DTO (for flexibility)
+            var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
+            var libraryId = scopedLibraryId.HasValue && scopedLibraryId.Value != Guid.Empty
+                ? scopedLibraryId.Value
+                : createLoanDto.LibraryId;
+
+            if (libraryId == Guid.Empty)
+            {
+                return BadRequest(new { message = "Library ID is required for loan creation" });
+            }
+
             var loan = await _loanService.CreateLoanAsync(
-                createLoanDto.UserId, 
-                createLoanDto.BookCopyId, 
-                createLoanDto.LibraryId);
-            
+                createLoanDto.UserId,
+                createLoanDto.BookCopyId,
+                libraryId);
+
             var loanDto = _mapper.Map<LoanDto>(loan);
             return CreatedAtAction(nameof(GetById), new { id = loan.Id }, loanDto);
         }

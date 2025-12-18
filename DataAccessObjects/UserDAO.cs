@@ -9,14 +9,30 @@ public class UserDAO : BaseDAO<User>, IUserDAO
     {
     }
 
+    public override async Task<IEnumerable<User>> GetAllAsync()
+    {
+        return await _dbSet
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .Include(u => u.HomeLibrary)
+            .Include(u => u.AssignedLibrary)
+            .ToListAsync();
+    }
+
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+        return await _dbSet
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<User?> GetByCardNumberAsync(string cardNumber)
     {
-        return await _dbSet.FirstOrDefaultAsync(u => u.CardNumber == cardNumber);
+        return await _dbSet
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.CardNumber == cardNumber);
     }
 
     public async Task<IEnumerable<User>> GetByRoleAsync(Guid roleId)

@@ -54,10 +54,8 @@ public class BookCopiesController : ControllerBase
         return Ok(copyDto);
     }
 
-    /// <summary>
     /// Get book copy by registration number.
     /// Librarians can only access copies from their library.
-    /// </summary>
     [HttpGet("registration/{registrationNumber}")]
     public async Task<IActionResult> GetByRegistrationNumber(string registrationNumber)
     {

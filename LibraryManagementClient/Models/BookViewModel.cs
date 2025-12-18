@@ -58,6 +58,16 @@ public class BookCopyDto
     public string? ShelfLocationCode { get; set; }
 }
 
+public class BookCopySearchDto
+{
+    public Guid Id { get; set; }
+    public string RegistrationNumber { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public string BookTitle { get; set; } = string.Empty;
+    public string BookAuthor { get; set; } = string.Empty;
+    public Guid BookId { get; set; }
+}
+
 public class SearchViewModel
 {
     public string? SearchTerm { get; set; }

@@ -1,4 +1,4 @@
-@model List<dynamic>
+@model List<LibraryManagementClient.Models.LoanDto>
 @{
     ViewData["Title"] = "Manage Loans";
 }
@@ -56,18 +56,18 @@
                 <tbody>
                     @foreach (var loan in Model)
                     {
-                        bool isOverdue = loan.IsOverdue == true;
+                        bool isOverdue = loan.IsOverdue;
                         bool isReturned = loan.ReturnDate != null;
-                        
+
                         <tr class="@(isOverdue && !isReturned ? "table-danger" : "")">
                             <td><strong>@loan.UserName</strong></td>
                             <td>@loan.BookTitle</td>
-                            <td>@(((DateTime)loan.LoanDate).ToString("MMM dd, yyyy"))</td>
-                            <td>@(((DateTime)loan.DueDate).ToString("MMM dd, yyyy"))</td>
+                            <td>@loan.LoanDate.ToString("MMM dd, yyyy")</td>
+                            <td>@loan.DueDate.ToString("MMM dd, yyyy")</td>
                             <td>
                                 @if (isReturned)
                                 {
-                                    @(((DateTime)loan.ReturnDate).ToString("MMM dd, yyyy"))
+                                    @loan.ReturnDate.Value.ToString("MMM dd, yyyy")
                                 }
                                 else
                                 {
@@ -98,7 +98,7 @@
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         </form>
-                                        @if (!isOverdue && (int)loan.RenewalsRemaining > 0)
+                                        @if (!isOverdue && loan.RenewalsRemaining > 0)
                                         {
                                             <form asp-action="Renew" asp-route-id="@loan.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()

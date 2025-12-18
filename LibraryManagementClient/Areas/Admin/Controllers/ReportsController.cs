@@ -1,3 +1,4 @@
+using LibraryManagementClient.Models;
 using LibraryManagementClient.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ public class ReportsController : Controller
     {
         try
         {
-            var dashboardData = await _apiService.GetAsync<dynamic>("api/reports/admin/dashboard");
+            var dashboardData = await _apiService.GetAsync<AdminDashboardDto>("api/reports/admin/dashboard");
             ViewBag.DashboardData = dashboardData;
         }
         catch (Exception ex)

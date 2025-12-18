@@ -12,6 +12,7 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
     public override async Task<IEnumerable<Book>> GetAllAsync()
     {
         return await _dbSet
+            .Include(b => b.Library)
             .Include(b => b.Category)
             .Include(b => b.Language)
             .Include(b => b.Publisher)
@@ -23,9 +24,11 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
     {
         return await _dbSet
             .Where(b => b.LibraryId == libraryId)
+            .Include(b => b.Library)
             .Include(b => b.Category)
             .Include(b => b.Language)
             .Include(b => b.Publisher)
+            .Include(b => b.Copies)
             .ToListAsync();
     }
 
@@ -37,6 +40,7 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
     public async Task<Book?> GetWithCopiesAsync(Guid id)
     {
         return await _dbSet
+            .Include(b => b.Library)
             .Include(b => b.Copies)
             .ThenInclude(c => c.ShelfLocation)
             .Include(b => b.Category)
@@ -49,15 +53,17 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
     {
         var lowerSearchTerm = searchTerm.ToLower();
         return await _dbSet
-            .Where(b => 
+            .Where(b =>
                 b.Title.ToLower().Contains(lowerSearchTerm) ||
                 b.Author.ToLower().Contains(lowerSearchTerm) ||
                 (b.ISBN != null && b.ISBN.ToLower().Contains(lowerSearchTerm)) ||
                 (b.Subject != null && b.Subject.ToLower().Contains(lowerSearchTerm)) ||
                 (b.Keyword != null && b.Keyword.ToLower().Contains(lowerSearchTerm)))
+            .Include(b => b.Library)
             .Include(b => b.Category)
             .Include(b => b.Language)
             .Include(b => b.Publisher)
+            .Include(b => b.Copies)
             .ToListAsync();
     }
 
@@ -65,9 +71,11 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
     {
         return await _dbSet
             .Where(b => b.CategoryId == categoryId)
+            .Include(b => b.Library)
             .Include(b => b.Category)
             .Include(b => b.Language)
             .Include(b => b.Publisher)
+            .Include(b => b.Copies)
             .ToListAsync();
     }
 
@@ -83,9 +91,11 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
         }
 
         return await query
+            .Include(b => b.Library)
             .Include(b => b.Category)
             .Include(b => b.Language)
             .Include(b => b.Publisher)
+            .Include(b => b.Copies)
             .ToListAsync();
     }
 }
