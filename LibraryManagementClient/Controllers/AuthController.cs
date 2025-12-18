@@ -65,7 +65,7 @@ public class AuthController : Controller
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
         var authProperties = new AuthenticationProperties
         {
             IsPersistent = model.RememberMe,
@@ -73,7 +73,7 @@ public class AuthController : Controller
         };
 
         await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
+            "CookieAuth",
             new ClaimsPrincipal(claimsIdentity),
             authProperties);
 
@@ -107,7 +107,7 @@ public class AuthController : Controller
     {
         _apiService.ClearAuthToken();
         HttpContext.Session.Clear();
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignOutAsync("CookieAuth");
         return RedirectToAction("Index", "Home");
     }
 

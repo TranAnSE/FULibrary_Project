@@ -91,14 +91,18 @@ public class AuthService : IAuthService
 
     public string HashPassword(string password)
     {
-        // TODO: Use BCrypt for password hashing
-        return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
+        return BCrypt.Net.BCrypt.HashPassword(password);
     }
 
     public bool VerifyPassword(string password, string hashedPassword)
     {
-        // TODO: Use BCrypt for password verification
-        var hash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
-        return hash == hashedPassword;
+        try
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

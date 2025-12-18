@@ -157,4 +157,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Seed initial data
+await LibraryManagementAPI.SeedData.Initialize(app.Services);
+
 app.Run();
