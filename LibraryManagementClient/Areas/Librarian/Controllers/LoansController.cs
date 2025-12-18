@@ -107,8 +107,15 @@ public class LoansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Return(Guid id)
     {
-        var result = await _apiService.PostAsync<dynamic>($"api/loans/{id}/return");
-        TempData[result != null ? "Success" : "Error"] = result != null ? "Book returned successfully." : "Failed to return book.";
+        try
+        {
+            await _apiService.PostAsync<object>($"api/loans/{id}/return");
+            TempData["Success"] = "Book returned successfully.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Failed to return book: {ex.Message}";
+        }
         return RedirectToAction(nameof(Index));
     }
 
@@ -116,8 +123,15 @@ public class LoansController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Renew(Guid id)
     {
-        var result = await _apiService.PostAsync<dynamic>($"api/loans/{id}/renew");
-        TempData[result != null ? "Success" : "Error"] = result != null ? "Loan renewed successfully." : "Failed to renew loan.";
+        try
+        {
+            await _apiService.PostAsync<object>($"api/loans/{id}/renew");
+            TempData["Success"] = "Loan renewed successfully.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Failed to renew loan: {ex.Message}";
+        }
         return RedirectToAction(nameof(Index));
     }
 

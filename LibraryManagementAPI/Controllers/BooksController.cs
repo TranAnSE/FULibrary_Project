@@ -96,9 +96,22 @@ public class BooksController : ODataController
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateBookDto createBookDto)
     {
+        // Get libraryId from middleware context (for Librarian scope)
+        // If not set by middleware, use the one from DTO (for flexibility)
+        var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
+        if (scopedLibraryId.HasValue && scopedLibraryId.Value != Guid.Empty)
+        {
+            createBookDto.LibraryId = scopedLibraryId.Value;
+        }
+
+        if (createBookDto.LibraryId == Guid.Empty)
+        {
+            return BadRequest(new { message = "Library ID is required for book creation" });
+        }
+
         var book = _mapper.Map<Book>(createBookDto);
         var createdBook = await _bookService.CreateAsync(book);
-        
+
         var bookDto = _mapper.Map<BookDto>(createdBook);
         return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, bookDto);
     }
