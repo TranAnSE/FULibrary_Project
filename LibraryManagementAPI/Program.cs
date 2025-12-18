@@ -20,7 +20,39 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 {
     options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     options.SerializerOptions.WriteIndented = true;
+    options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 });
+
+// Add OData
+var modelBuilder = new ODataConventionModelBuilder();
+modelBuilder.EntitySet<User>("Users");
+modelBuilder.EntitySet<Library>("Libraries");
+modelBuilder.EntitySet<Book>("Books");
+modelBuilder.EntitySet<BookCopy>("BookCopies");
+modelBuilder.EntitySet<Loan>("Loans");
+modelBuilder.EntitySet<Reservation>("Reservations");
+modelBuilder.EntitySet<Fine>("Fines");
+modelBuilder.EntitySet<Category>("Categories");
+modelBuilder.EntitySet<Language>("Languages");
+modelBuilder.EntitySet<Publisher>("Publishers");
+modelBuilder.EntitySet<ShelfLocation>("ShelfLocations");
+
+// Configure JSON options for controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.WriteIndented = true;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    })
+    .AddOData(options => options
+        .Select()
+        .Filter()
+        .OrderBy()
+        .Expand()
+        .Count()
+        .SetMaxTop(100)
+        .AddRouteComponents("odata", modelBuilder.GetEdmModel()));
 
 // Add DbContext
 builder.Services.AddDbContext<FULibraryDbContext>(options =>
@@ -84,30 +116,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-
-// Add OData
-var modelBuilder = new ODataConventionModelBuilder();
-modelBuilder.EntitySet<User>("Users");
-modelBuilder.EntitySet<Library>("Libraries");
-modelBuilder.EntitySet<Book>("Books");
-modelBuilder.EntitySet<BookCopy>("BookCopies");
-modelBuilder.EntitySet<Loan>("Loans");
-modelBuilder.EntitySet<Reservation>("Reservations");
-modelBuilder.EntitySet<Fine>("Fines");
-modelBuilder.EntitySet<Category>("Categories");
-modelBuilder.EntitySet<Language>("Languages");
-modelBuilder.EntitySet<Publisher>("Publishers");
-modelBuilder.EntitySet<ShelfLocation>("ShelfLocations");
-
-builder.Services.AddControllers()
-    .AddOData(options => options
-        .Select()
-        .Filter()
-        .OrderBy()
-        .Expand()
-        .Count()
-        .SetMaxTop(100)
-        .AddRouteComponents("odata", modelBuilder.GetEdmModel()));
 
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();

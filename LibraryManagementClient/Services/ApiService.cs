@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LibraryManagementClient.Services;
 
@@ -67,7 +68,8 @@ public class ApiService : IApiService
             var content = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions 
             { 
-                PropertyNameCaseInsensitive = true 
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
             });
         }
         catch (Exception ex)
@@ -141,7 +143,8 @@ public class ApiService : IApiService
             var content = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions 
             { 
-                PropertyNameCaseInsensitive = true 
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
             });
         }
         catch
