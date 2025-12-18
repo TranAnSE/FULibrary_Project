@@ -1,10 +1,17 @@
+using System.Text.Json.Serialization;
+
 namespace LibraryManagementAPI.DTOs.Reports;
 
 public class LibrarianDashboardDto
 {
+    [JsonPropertyName("todayLoansCount")]
     public int TodayLoansCount { get; set; }
+    [JsonPropertyName("booksDueSoon")]
     public List<DueSoonBookDto> BooksDueSoon { get; set; } = new();
+    [JsonPropertyName("overdueBooks")]
     public List<OverdueBookDto> OverdueBooks { get; set; } = new();
+    [JsonPropertyName("pendingReservationsCount")]
+    public int PendingReservationsCount { get; set; }
 }
 
 public class DueSoonBookDto

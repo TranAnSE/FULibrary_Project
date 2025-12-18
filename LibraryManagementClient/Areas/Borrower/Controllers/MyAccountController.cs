@@ -27,6 +27,10 @@ public class MyAccountController : Controller
         var user = await _apiService.GetAsync<dynamic>($"api/users/{userId}");
         ViewBag.UserData = user;
         
+        // Get borrower statistics
+        var dashboardData = await _apiService.GetAsync<dynamic>($"api/reports/borrower/dashboard?userId={userId}");
+        ViewBag.DashboardData = dashboardData;
+        
         return View();
     }
 }

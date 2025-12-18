@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using BusinessObjects;
 using DataAccessObjects;
 using LibraryManagementAPI.Middleware;
@@ -13,6 +14,13 @@ using Repositories;
 using Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure JSON options
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.WriteIndented = true;
+});
 
 // Add DbContext
 builder.Services.AddDbContext<FULibraryDbContext>(options =>

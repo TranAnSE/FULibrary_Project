@@ -72,24 +72,32 @@
                 <div class="row text-center">
                     <div class="col-md-3 mb-3">
                         <div class="border-end">
-                            <div class="stat-number">--</div>
+                            <div class="stat-number">
+                                @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("systemStats").GetProperty("totalLibraries").GetInt32() ?? 0)
+                            </div>
                             <p class="text-muted mb-0">Total Libraries</p>
                         </div>
                     </div>
                     <div class="col-md-3 mb-3">
                         <div class="border-end">
-                            <div class="stat-number">--</div>
+                            <div class="stat-number">
+                                @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("systemStats").GetProperty("totalBooks").GetInt32() ?? 0)
+                            </div>
                             <p class="text-muted mb-0">Total Books</p>
                         </div>
                     </div>
                     <div class="col-md-3 mb-3">
                         <div class="border-end">
-                            <div class="stat-number">--</div>
+                            <div class="stat-number">
+                                @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("systemStats").GetProperty("activeUsers").GetInt32() ?? 0)
+                            </div>
                             <p class="text-muted mb-0">Active Users</p>
                         </div>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <div class="stat-number">--</div>
+                        <div class="stat-number">
+                            @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("systemStats").GetProperty("activeLoans").GetInt32() ?? 0)
+                        </div>
                         <p class="text-muted mb-0">Active Loans</p>
                     </div>
                 </div>

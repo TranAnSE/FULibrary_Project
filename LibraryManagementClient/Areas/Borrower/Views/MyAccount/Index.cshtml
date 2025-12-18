@@ -98,15 +98,21 @@
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-4">
-                        <div class="stat-number text-primary">--</div>
+                        <div class="stat-number text-primary">
+                            @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("activeLoansCount").GetInt32() ?? 0)
+                        </div>
                         <small class="text-muted">Active Loans</small>
                     </div>
                     <div class="col-4">
-                        <div class="stat-number text-accent">--</div>
+                        <div class="stat-number text-accent">
+                            @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("currentReservationsCount").GetInt32() ?? 0)
+                        </div>
                         <small class="text-muted">Reservations</small>
                     </div>
                     <div class="col-4">
-                        <div class="stat-number text-danger">--</div>
+                        <div class="stat-number text-danger">
+                            @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("pendingFinesCount").GetInt32() ?? 0)
+                        </div>
                         <small class="text-muted">Pending Fines</small>
                     </div>
                 </div>

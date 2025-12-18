@@ -23,6 +23,7 @@ public class ReportsController : ControllerBase
         var totalBooksByLibrary = await _reportService.GetTotalBooksByLibraryAsync();
         var topBooks = await _reportService.GetTopBorrowedBooksByLibraryAsync();
         var availabilityRatio = await _reportService.GetAvailabilityRatioByLibraryAsync();
+        var systemStats = await _reportService.GetSystemWideStatisticsAsync();
 
         var dashboard = new AdminDashboardDto
         {
@@ -46,7 +47,15 @@ public class ReportsController : ControllerBase
                 LoanCount = book.LoanCount,
                 LibraryId = kvp.Key,
                 LibraryName = string.Empty
-            })).ToList()
+            })).ToList(),
+            SystemStats = new SystemStatsDto
+            {
+                TotalLibraries = systemStats.GetValueOrDefault("Libraries", 0),
+                TotalBooks = systemStats.GetValueOrDefault("TotalBooks", 0),
+                ActiveUsers = systemStats.GetValueOrDefault("ActiveUsers", 0),
+                ActiveLoans = systemStats.GetValueOrDefault("ActiveLoans", 0),
+                PendingReservations = systemStats.GetValueOrDefault("PendingReservations", 0)
+            }
         };
 
         return Ok(dashboard);
@@ -59,10 +68,12 @@ public class ReportsController : ControllerBase
         var todayLoans = await _reportService.GetTodayLoansCountAsync(libraryId);
         var dueSoon = await _reportService.GetBooksDueSoonAsync(libraryId, dueDays);
         var overdue = await _reportService.GetOverdueLoansAsync(libraryId);
+        var pendingReservations = await _reportService.GetPendingReservationsCountAsync(libraryId);
 
         var dashboard = new LibrarianDashboardDto
         {
             TodayLoansCount = todayLoans,
+            PendingReservationsCount = pendingReservations,
             BooksDueSoon = dueSoon.Select(b => new DueSoonBookDto
             {
                 BookTitle = b.BookTitle,
@@ -109,5 +120,24 @@ public class ReportsController : ControllerBase
         });
 
         return Ok(result);
+    }
+
+    [HttpGet("borrower/dashboard")]
+    [Authorize(Policy = "Borrower")]
+    public async Task<IActionResult> GetBorrowerDashboard([FromQuery] string userId)
+    {
+        var activeLoans = await _reportService.GetBorrowerActiveLoansCountAsync(userId);
+        var reservations = await _reportService.GetBorrowerReservationsCountAsync(userId);
+        var pendingFines = await _reportService.GetBorrowerPendingFinesAsync(userId);
+
+        var dashboard = new BorrowerDashboardDto
+        {
+            ActiveLoansCount = activeLoans,
+            CurrentReservationsCount = reservations,
+            PendingFinesCount = pendingFines.Count(),
+            PendingFinesTotal = pendingFines.Sum()
+        };
+
+        return Ok(dashboard);
     }
 }

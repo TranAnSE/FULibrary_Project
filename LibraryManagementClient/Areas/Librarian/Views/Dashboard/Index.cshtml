@@ -64,7 +64,9 @@
     <div class="col-md-3 mb-3">
         <div class="card dashboard-card shadow-sm">
             <div class="card-body text-center">
-                <div class="stat-number">--</div>
+                <div class="stat-number">
+                    @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("todayLoansCount").GetInt32() ?? 0)
+                </div>
                 <p class="text-muted mb-0">Today's Loans</p>
             </div>
         </div>
@@ -72,7 +74,9 @@
     <div class="col-md-3 mb-3">
         <div class="card dashboard-card accent shadow-sm">
             <div class="card-body text-center">
-                <div class="stat-number text-accent">--</div>
+                <div class="stat-number text-accent">
+                    @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("booksDueSoon").GetArrayLength() ?? 0)
+                </div>
                 <p class="text-muted mb-0">Due Soon</p>
             </div>
         </div>
@@ -80,7 +84,9 @@
     <div class="col-md-3 mb-3">
         <div class="card dashboard-card shadow-sm">
             <div class="card-body text-center">
-                <div class="stat-number text-danger">--</div>
+                <div class="stat-number text-danger">
+                    @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("overdueBooks").GetArrayLength() ?? 0)
+                </div>
                 <p class="text-muted mb-0">Overdue</p>
             </div>
         </div>
@@ -88,7 +94,9 @@
     <div class="col-md-3 mb-3">
         <div class="card dashboard-card shadow-sm">
             <div class="card-body text-center">
-                <div class="stat-number">--</div>
+                <div class="stat-number">
+                    @((ViewBag.DashboardData as System.Text.Json.JsonElement?)?.GetProperty("pendingReservationsCount").GetInt32() ?? 0)
+                </div>
                 <p class="text-muted mb-0">Pending Reservations</p>
             </div>
         </div>
