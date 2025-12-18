@@ -147,8 +147,9 @@ public class ApiService : IApiService
                 Converters = { new JsonStringEnumConverter() }
             });
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Exception in POST {Endpoint}", endpoint);
             return default;
         }
     }

@@ -130,7 +130,7 @@ public class UsersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Lock(Guid id)
     {
-        var result = await _apiService.PostAsync<dynamic>($"api/users/{id}/lock");
+        var result = await _apiService.PostAsync<ApiResponse>($"api/usermanagement/users/{id}/lock");
         if (result != null)
         {
             TempData["Success"] = "User locked successfully.";
@@ -146,7 +146,7 @@ public class UsersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Unlock(Guid id)
     {
-        var result = await _apiService.PostAsync<dynamic>($"api/users/{id}/unlock");
+        var result = await _apiService.PostAsync<ApiResponse>($"api/usermanagement/users/{id}/unlock");
         if (result != null)
         {
             TempData["Success"] = "User unlocked successfully.";

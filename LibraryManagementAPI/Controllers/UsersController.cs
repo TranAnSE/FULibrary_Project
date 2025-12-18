@@ -12,7 +12,7 @@ namespace LibraryManagementAPI.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize(Policy = "Admin")]
-public class UsersController : ODataController
+public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
@@ -84,23 +84,5 @@ public class UsersController : ODataController
         return NoContent();
     }
 
-    [HttpPost("{id}/lock")]
-    public async Task<IActionResult> Lock(Guid id)
-    {
-        var result = await _userService.LockUserAsync(id);
-        if (!result)
-            return NotFound();
 
-        return Ok(new { message = "User locked successfully" });
-    }
-
-    [HttpPost("{id}/unlock")]
-    public async Task<IActionResult> Unlock(Guid id)
-    {
-        var result = await _userService.UnlockUserAsync(id);
-        if (!result)
-            return NotFound();
-
-        return Ok(new { message = "User unlocked successfully" });
-    }
 }
