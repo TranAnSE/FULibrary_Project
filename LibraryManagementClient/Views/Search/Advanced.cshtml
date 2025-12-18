@@ -96,7 +96,7 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
                             <i class="fas fa-times me-2"></i>Cancel
                         </a>
                         <button type="submit" class="btn btn-primary">
@@ -136,7 +136,7 @@
                                         <p class="text-muted text-xs mb-2">
                                             <i class="fas fa-building me-1"></i>@book.LibraryName
                                         </p>
-                                        <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" 
+                                        <a asp-area="" asp-controller="Books" asp-action="Details" asp-route-id="@book.Id" 
                                            class="btn btn-sm btn-primary">
                                             <i class="fas fa-info-circle me-1"></i>View Details
                                         </a>
