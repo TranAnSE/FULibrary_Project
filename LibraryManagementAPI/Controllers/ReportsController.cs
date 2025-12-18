@@ -7,7 +7,6 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "Admin")]
 public class ReportsController : ControllerBase
 {
     private readonly IReportService _reportService;
@@ -18,6 +17,7 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("admin/dashboard")]
+    [Authorize(Policy = "Admin")]
     public async Task<IActionResult> GetAdminDashboard()
     {
         var totalBooksByLibrary = await _reportService.GetTotalBooksByLibraryAsync();
@@ -53,6 +53,7 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("librarian/dashboard")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> GetLibrarianDashboard([FromQuery] Guid libraryId, [FromQuery] int dueDays = 7)
     {
         var todayLoans = await _reportService.GetTodayLoansCountAsync(libraryId);
@@ -81,6 +82,7 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("library/{libraryId}/books/total")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> GetTotalBooks(Guid libraryId)
     {
         var totalBooks = await _reportService.GetTotalBooksByLibraryAsync();
@@ -91,6 +93,7 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("library/{libraryId}/books/top")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> GetTopBooks(Guid libraryId, [FromQuery] int count = 5)
     {
         var topBooks = await _reportService.GetTopBorrowedBooksByLibraryAsync(count);
