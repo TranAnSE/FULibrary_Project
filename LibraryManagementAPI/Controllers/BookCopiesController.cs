@@ -4,6 +4,8 @@ using DataAccessObjects;
 using LibraryManagementAPI.DTOs.Books;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Services;
 
 namespace LibraryManagementAPI.Controllers;
 
@@ -13,11 +15,15 @@ namespace LibraryManagementAPI.Controllers;
 public class BookCopiesController : ControllerBase
 {
     private readonly IBookCopyDAO _bookCopyDAO;
+    private readonly IBookDAO _bookDAO;
+    private readonly FULibraryDbContext _context;
     private readonly IMapper _mapper;
 
-    public BookCopiesController(IBookCopyDAO bookCopyDAO, IMapper mapper)
+    public BookCopiesController(IBookCopyDAO bookCopyDAO, IBookDAO bookDAO, FULibraryDbContext context, IMapper mapper)
     {
         _bookCopyDAO = bookCopyDAO;
+        _bookDAO = bookDAO;
+        _context = context;
         _mapper = mapper;
     }
 
@@ -46,6 +52,48 @@ public class BookCopiesController : ControllerBase
 
         var copyDto = _mapper.Map<BookCopyDto>(copy);
         return Ok(copyDto);
+    }
+
+    /// <summary>
+    /// Get book copy by registration number.
+    /// Librarians can only access copies from their library.
+    /// </summary>
+    [HttpGet("registration/{registrationNumber}")]
+    public async Task<IActionResult> GetByRegistrationNumber(string registrationNumber)
+    {
+        if (string.IsNullOrWhiteSpace(registrationNumber))
+            return BadRequest(new { message = "Registration number is required" });
+
+        // Get libraryId from middleware context (for Librarian scope)
+        var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
+
+        var bookCopy = await _context.BookCopies
+            .Include(bc => bc.Book)
+            .ThenInclude(b => b.Library)
+            .Where(bc => bc.RegistrationNumber == registrationNumber)
+            .FirstOrDefaultAsync();
+
+        if (bookCopy == null)
+            return NotFound();
+
+        // Check library scope for Librarian
+        if (scopedLibraryId.HasValue && bookCopy.Book.LibraryId != scopedLibraryId.Value)
+        {
+            return Forbid();
+        }
+
+        // Return simplified object with necessary info
+        var result = new
+        {
+            id = bookCopy.Id,
+            registrationNumber = bookCopy.RegistrationNumber,
+            status = bookCopy.Status.ToString(),
+            bookTitle = bookCopy.Book.Title,
+            bookAuthor = bookCopy.Book.Author,
+            bookId = bookCopy.Book.Id
+        };
+
+        return Ok(result);
     }
 
     [HttpPost]

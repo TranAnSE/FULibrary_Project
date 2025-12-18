@@ -192,6 +192,37 @@ public class BorrowersController : ControllerBase
         var borrowerDtos = _mapper.Map<List<UserDto>>(searchResults);
         return Ok(borrowerDtos);
     }
+
+    /// <summary>
+    /// Get borrower by card number.
+    /// Librarians can only access borrowers from their library.
+    /// </summary>
+    [HttpGet("card/{cardNumber}")]
+    public async Task<IActionResult> GetByCardNumber(string cardNumber)
+    {
+        if (string.IsNullOrWhiteSpace(cardNumber))
+            return BadRequest(new { message = "Card number is required" });
+
+        var users = await _userService.GetAllAsync();
+        
+        // Filter only Borrowers and by card number
+        var borrower = users.FirstOrDefault(u => 
+            u.UserRoles.Any(ur => ur.Role.Name == "Borrower") &&
+            u.CardNumber == cardNumber);
+
+        if (borrower == null)
+            return NotFound();
+
+        // Check library scope for Librarian
+        var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
+        if (scopedLibraryId.HasValue && borrower.HomeLibraryId != scopedLibraryId.Value)
+        {
+            return Forbid();
+        }
+
+        var borrowerDto = _mapper.Map<UserDto>(borrower);
+        return Ok(borrowerDto);
+    }
 }
 
 /// <summary>

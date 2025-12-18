@@ -9,6 +9,16 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
     {
     }
 
+    public override async Task<IEnumerable<Book>> GetAllAsync()
+    {
+        return await _dbSet
+            .Include(b => b.Category)
+            .Include(b => b.Language)
+            .Include(b => b.Publisher)
+            .Include(b => b.Copies)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Book>> GetByLibraryAsync(Guid libraryId)
     {
         return await _dbSet

@@ -1,3 +1,4 @@
+@model LibraryManagementClient.Models.CreateLoanViewModel
 @{
     ViewData["Title"] = "Create New Loan";
 }
@@ -19,24 +20,48 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        To create a loan, you need both the <strong>Borrower ID</strong> and <strong>Book Copy ID</strong>.
+                        Simply enter borrower's <strong>Card Number</strong> and book's <strong>Registration Number</strong> to create a loan.
                     </div>
 
                     <div class="mb-3">
-                        <label for="userId" class="form-label">Borrower ID <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="userId" name="userId" required placeholder="Enter borrower's user ID" />
-                        <small class="form-text text-muted">You can find the borrower ID from the Borrowers management page</small>
+                        <label asp-for="CardNumber" class="form-label">Card Number <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input asp-for="CardNumber" class="form-control" placeholder="Enter borrower's card number" />
+                            <button class="btn btn-outline-secondary" type="button" id="searchBorrower">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="CardNumber" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter library card number printed on borrower's card</small>
+                        @if (!string.IsNullOrEmpty(Model?.BorrowerName))
+                        {
+                            <div class="alert alert-success mt-2">
+                                <i class="fas fa-user me-2"></i><strong>Found:</strong> @Model.BorrowerName
+                            </div>
+                        }
                     </div>
 
                     <div class="mb-3">
-                        <label for="bookCopyId" class="form-label">Book Copy ID <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="bookCopyId" name="bookCopyId" required placeholder="Enter book copy ID" />
-                        <small class="form-text text-muted">Find available copies from the Books management page</small>
+                        <label asp-for="RegistrationNumber" class="form-label">Registration Number <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input asp-for="RegistrationNumber" class="form-control" placeholder="Enter book registration number" />
+                            <button class="btn btn-outline-secondary" type="button" id="searchBook">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter registration number (ĐKCB) from book label</small>
+                        @if (!string.IsNullOrEmpty(Model?.BookTitle))
+                        {
+                            <div class="alert alert-success mt-2">
+                                <i class="fas fa-book me-2"></i><strong>Found:</strong> @Model.BookTitle
+                            </div>
+                        }
                     </div>
 
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Note:</strong> The system will automatically calculate the due date based on library settings.
+                        <strong>Note:</strong> The system will automatically calculate due date based on library settings.
                     </div>
 
                     <div class="mt-4">
@@ -62,11 +87,11 @@
             <div class="card-body">
                 <p class="small mb-2"><strong>Steps:</strong></p>
                 <ol class="small">
-                    <li>Search for the borrower in <a asp-controller="Borrowers" asp-action="Index" target="_blank">Borrowers</a></li>
-                    <li>Copy their User ID</li>
-                    <li>Find an available book copy in <a asp-controller="Books" asp-action="Index" target="_blank">Books</a></li>
-                    <li>Copy the Book Copy ID</li>
-                    <li>Fill in both IDs and submit</li>
+                    <li>Enter borrower's Card Number</li>
+                    <li>Click Search to verify the borrower</li>
+                    <li>Enter the book's Registration Number</li>
+                    <li>Click Search to verify the book</li>
+                    <li>Click Create Loan to complete</li>
                 </ol>
             </div>
         </div>
@@ -91,4 +116,49 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            $('#searchBorrower').click(function() {
+                const cardNumber = $('#CardNumber').val();
+                if (!cardNumber) {
+                    alert('Please enter a card number');
+                    return;
+                }
+                
+                $.get('/Librarian/Loans/SearchBorrower?cardNumber=' + encodeURIComponent(cardNumber))
+                    .done(function(data) {
+                        if (data) {
+                            alert('Borrower found: ' + data.fullName);
+                            // Optionally auto-fill hidden fields
+                        } else {
+                            alert('Borrower not found with this card number');
+                        }
+                    })
+                    .fail(function() {
+                        alert('Error searching for borrower');
+                    });
+            });
+            
+            $('#searchBook').click(function() {
+                const regNumber = $('#RegistrationNumber').val();
+                if (!regNumber) {
+                    alert('Please enter a registration number');
+                    return;
+                }
+                
+                $.get('/Librarian/Loans/SearchBookCopy?registrationNumber=' + encodeURIComponent(regNumber))
+                    .done(function(data) {
+                        if (data) {
+                            alert('Book found: ' + data.bookTitle + ' by ' + data.bookAuthor);
+                            // Optionally auto-fill hidden fields
+                        } else {
+                            alert('Book copy not found with this registration number');
+                        }
+                    })
+                    .fail(function() {
+                        alert('Error searching for book');
+                    });
+            });
+        });
+    </script>
 }

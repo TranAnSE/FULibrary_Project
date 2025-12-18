@@ -20,7 +20,7 @@ public class BookService : IBookService
         return await _bookRepository.GetByIdAsync(id);
     }
 
-    public async Task<IEnumerable<Book>> GetAllAsync()
+    public virtual async Task<IEnumerable<Book>> GetAllAsync()
     {
         return await _bookRepository.GetAllAsync();
     }

@@ -18,8 +18,7 @@ public class BooksController : Controller
 
     public async Task<IActionResult> Index(string? searchTerm)
     {
-        var libraryId = HttpContext.Session.GetString("AssignedLibraryId");
-        
+        // API automatically filters by librarian's assigned library through middleware
         string url = "api/books";
         if (!string.IsNullOrEmpty(searchTerm))
         {
@@ -27,12 +26,6 @@ public class BooksController : Controller
         }
         
         var books = await _apiService.GetAsync<List<BookDto>>(url) ?? new List<BookDto>();
-        
-        // Filter by library if librarian is scoped
-        if (!string.IsNullOrEmpty(libraryId) && Guid.TryParse(libraryId, out var libId))
-        {
-            books = books.Where(b => b.LibraryId == libId).ToList();
-        }
         
         ViewBag.SearchTerm = searchTerm;
         return View(books);

@@ -1,3 +1,4 @@
+using LibraryManagementClient.Models;
 using LibraryManagementClient.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,8 @@ public class LoansController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var libraryId = HttpContext.Session.GetString("AssignedLibraryId");
-        if (string.IsNullOrEmpty(libraryId))
-        {
-            TempData["Error"] = "No library assigned.";
-            return RedirectToAction("Index", "Dashboard");
-        }
-
-        var loans = await _apiService.GetAsync<List<dynamic>>($"api/loans?libraryId={libraryId}");
+        // API automatically filters by librarian's assigned library through middleware
+        var loans = await _apiService.GetAsync<List<dynamic>>("api/loans");
         return View(loans ?? new List<dynamic>());
     }
 
@@ -35,10 +30,46 @@ public class LoansController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Guid userId, Guid bookCopyId)
+    public async Task<IActionResult> Create(CreateLoanViewModel model)
     {
-        var libraryId = HttpContext.Session.GetString("AssignedLibraryId");
-        var result = await _apiService.PostAsync<dynamic>("api/loans", new { userId, bookCopyId, libraryId });
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        // If Card Number provided, find the borrower
+        if (!string.IsNullOrEmpty(model.CardNumber))
+        {
+            var borrower = await _apiService.GetAsync<UserDto>($"api/borrowers/card/{model.CardNumber}");
+            if (borrower != null)
+            {
+                model.UserId = borrower.Id;
+                model.BorrowerName = borrower.FullName;
+            }
+            else
+            {
+                ModelState.AddModelError("CardNumber", "Borrower with this Card Number not found");
+                return View(model);
+            }
+        }
+
+        // If Registration Number provided, find the book copy
+        if (!string.IsNullOrEmpty(model.RegistrationNumber))
+        {
+            var bookCopy = await _apiService.GetAsync<dynamic>($"api/bookcopies/registration/{model.RegistrationNumber}");
+            if (bookCopy != null)
+            {
+                model.BookCopyId = Guid.Parse(bookCopy.id.ToString());
+                model.BookTitle = bookCopy.bookTitle;
+            }
+            else
+            {
+                ModelState.AddModelError("RegistrationNumber", "Book copy with this Registration Number not found");
+                return View(model);
+            }
+        }
+
+        var result = await _apiService.PostAsync<dynamic>("api/loans", new { model.UserId, model.BookCopyId });
         
         if (result != null)
         {
@@ -47,7 +78,21 @@ public class LoansController : Controller
         }
 
         TempData["Error"] = "Failed to create loan.";
-        return View();
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SearchBorrower(string cardNumber)
+    {
+        var borrower = await _apiService.GetAsync<UserDto>($"api/borrowers/card/{cardNumber}");
+        return Json(borrower);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SearchBookCopy(string registrationNumber)
+    {
+        var bookCopy = await _apiService.GetAsync<dynamic>($"api/bookcopies/registration/{registrationNumber}");
+        return Json(bookCopy);
     }
 
     [HttpPost]

@@ -18,8 +18,7 @@ public class BorrowersController : Controller
 
     public async Task<IActionResult> Index(string? searchTerm)
     {
-        var libraryId = HttpContext.Session.GetString("AssignedLibraryId");
-        
+        // API automatically filters by librarian's assigned library through middleware
         List<UserDto> borrowers;
         
         if (!string.IsNullOrEmpty(searchTerm))
@@ -28,12 +27,7 @@ public class BorrowersController : Controller
         }
         else
         {
-            var url = "api/borrowers";
-            if (!string.IsNullOrEmpty(libraryId))
-            {
-                url += $"?libraryId={libraryId}";
-            }
-            borrowers = await _apiService.GetAsync<List<UserDto>>(url) ?? new List<UserDto>();
+            borrowers = await _apiService.GetAsync<List<UserDto>>("api/borrowers") ?? new List<UserDto>();
         }
         
         ViewBag.SearchTerm = searchTerm;
