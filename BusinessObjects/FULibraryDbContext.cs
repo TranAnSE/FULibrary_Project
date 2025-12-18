@@ -181,6 +181,18 @@ public class FULibraryDbContext : DbContext
             .WithMany(u => u.BookSuggestions)
             .HasForeignKey(bps => bps.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<BookPurchaseSuggestion>()
+            .HasOne(bps => bps.Library)
+            .WithMany()
+            .HasForeignKey(bps => bps.LibraryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<BookPurchaseSuggestion>()
+            .HasOne(bps => bps.Processor)
+            .WithMany()
+            .HasForeignKey(bps => bps.ProcessedByLibrarian)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 
     private void ConfigureIndexes(ModelBuilder modelBuilder)
@@ -217,6 +229,12 @@ public class FULibraryDbContext : DbContext
 
         modelBuilder.Entity<OtpToken>()
             .HasIndex(ot => ot.Email);
+
+        modelBuilder.Entity<BookPurchaseSuggestion>()
+            .HasIndex(bps => bps.LibraryId);
+
+        modelBuilder.Entity<BookPurchaseSuggestion>()
+            .HasIndex(bps => bps.Status);
     }
 
     private void ConfigureDecimalPrecision(ModelBuilder modelBuilder)

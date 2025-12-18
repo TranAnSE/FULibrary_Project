@@ -1,0 +1,26 @@
+@model LibraryManagementClient.Models.BookSuggestionDto
+@{
+    ViewData["Title"] = "Book Suggestion Details";
+}
+
+@if (Model != null)
+{
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4>@Model.Title</h4>
+            <p class="text-muted">By: @Model.Author</p>
+            <p>@Model.Reason</p>
+            <p>Status: @Model.Status</p>
+            <p>Submitted by: @Model.UserName</p>
+            <p>Submitted on: @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+            <a asp-action="UpdateStatus" asp-route-id="@Model.Id" class="btn btn-warning">Update Status</a>
+            <a asp-action="Index" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        Suggestion not found.
+    </div>
+}

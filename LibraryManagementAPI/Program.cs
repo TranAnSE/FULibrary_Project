@@ -92,6 +92,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ILanguageRepository, LanguageRepository>();
 builder.Services.AddScoped<IPublisherRepository, PublisherRepository>();
 builder.Services.AddScoped<IShelfLocationRepository, ShelfLocationRepository>();
+builder.Services.AddScoped<IBookSuggestionRepository, BookSuggestionRepository>();
 
 // Register Services
 builder.Services.AddScoped<IJwtService, JwtService>();
