@@ -54,7 +54,7 @@ public class UsersController : Controller
         var result = await _apiService.PostAsync<UserDto>("api/users", model);
         if (result != null)
         {
-            TempData["Success"] = "User created successfully. Magic link sent to their email.";
+            TempData["Success"] = "User created successfully. User must change password on first login.";
             return RedirectToAction(nameof(Index));
         }
 

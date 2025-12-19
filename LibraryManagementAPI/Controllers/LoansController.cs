@@ -25,29 +25,31 @@ public class LoansController : ODataController
     [HttpGet]
     [EnableQuery]
     [Authorize(Policy = "Librarian")] // Only librarians can query all loans
-    public async Task<IActionResult> Get([FromQuery] Guid? userId, [FromQuery] Guid? libraryId)
+    public IActionResult Get([FromQuery] Guid? userId, [FromQuery] Guid? libraryId)
     {
         // Get libraryId from middleware context (for Librarian scope)
         var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
         var filterLibraryId = scopedLibraryId ?? libraryId;
 
-        IEnumerable<BusinessObjects.Loan> loans;
+        // Get all loans as IQueryable
+        var loans = _loanService.GetAllAsQueryable();
 
+        // Apply filter based on parameters
         if (userId.HasValue)
         {
-            loans = await _loanService.GetByUserAsync(userId.Value);
+            loans = loans.Where(l => l.UserId == userId.Value);
         }
         else if (filterLibraryId.HasValue)
         {
-            loans = await _loanService.GetByLibraryAsync(filterLibraryId.Value);
+            // For library filter, we need to use LibraryId directly from the Loan entity
+            loans = loans.Where(l => l.LibraryId == filterLibraryId.Value);
         }
         else
         {
             return BadRequest(new { message = "Either userId or libraryId is required. Librarians should have library scope automatically applied." });
         }
 
-        var loanDtos = _mapper.Map<List<LoanDto>>(loans);
-        return Ok(loanDtos);
+        return Ok(loans);
     }
 
     [HttpGet("{id}")]

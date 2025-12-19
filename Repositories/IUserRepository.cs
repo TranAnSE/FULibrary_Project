@@ -6,6 +6,7 @@ public interface IUserRepository : IRepository<User>
 {
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetByCardNumberAsync(string cardNumber);
+    new IQueryable<User> GetAllAsQueryable();
     Task<IEnumerable<User>> GetByRoleAsync(Guid roleId);
     Task<IEnumerable<User>> GetLibrariansByLibraryAsync(Guid libraryId);
     Task<IEnumerable<User>> GetBorrowersByLibraryAsync(Guid libraryId);

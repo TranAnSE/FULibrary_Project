@@ -22,6 +22,11 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         return await _dao.GetAllAsync();
     }
 
+    public IQueryable<T> GetAllAsQueryable()
+    {
+        return _dao.GetAllAsQueryable();
+    }
+
     public async Task<T> CreateAsync(T entity)
     {
         return await _dao.AddAsync(entity);

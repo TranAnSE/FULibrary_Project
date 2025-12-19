@@ -17,6 +17,11 @@ public class BookRepository : Repository<Book>, IBookRepository
         return await _bookDAO.GetByLibraryAsync(libraryId);
     }
 
+    public new IQueryable<Book> GetAllAsQueryable()
+    {
+        return _bookDAO.GetAllAsQueryable();
+    }
+
     public async Task<Book?> GetByISBNAsync(string isbn)
     {
         return await _bookDAO.GetByISBNAsync(isbn);

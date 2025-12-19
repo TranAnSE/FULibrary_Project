@@ -9,6 +9,16 @@ public class LoanDAO : BaseDAO<Loan>, ILoanDAO
     {
     }
 
+    public new IQueryable<Loan> GetAllAsQueryable()
+    {
+        return _dbSet
+            .Include(l => l.User)
+            .Include(l => l.BookCopy)
+            .ThenInclude(bc => bc.Book)
+            .ThenInclude(b => b.Library)
+            .Include(l => l.Library);
+    }
+
     public async Task<IEnumerable<Loan>> GetByUserAsync(Guid userId)
     {
         return await _dbSet

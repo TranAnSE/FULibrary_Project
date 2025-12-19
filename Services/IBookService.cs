@@ -6,6 +6,7 @@ public interface IBookService
 {
     Task<Book?> GetByIdAsync(Guid id);
     Task<IEnumerable<Book>> GetAllAsync();
+    IQueryable<Book> GetAllAsQueryable();
     Task<IEnumerable<Book>> GetByLibraryAsync(Guid libraryId);
     Task<Book> CreateAsync(Book book);
     Task<Book> UpdateAsync(Book book);

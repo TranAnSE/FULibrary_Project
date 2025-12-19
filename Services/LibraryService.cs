@@ -22,6 +22,11 @@ public class LibraryService : ILibraryService
         return await _libraryRepository.GetAllAsync();
     }
 
+    public IQueryable<Library> GetAllAsQueryable()
+    {
+        return _libraryRepository.GetAllAsQueryable();
+    }
+
     public async Task<Library> CreateAsync(Library library)
     {
         return await _libraryRepository.CreateAsync(library);

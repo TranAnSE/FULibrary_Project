@@ -22,6 +22,11 @@ public class UserRepository : Repository<User>, IUserRepository
         return await _userDAO.GetByCardNumberAsync(cardNumber);
     }
 
+    public new IQueryable<User> GetAllAsQueryable()
+    {
+        return _userDAO.GetAllAsQueryable();
+    }
+
     public async Task<IEnumerable<User>> GetByRoleAsync(Guid roleId)
     {
         return await _userDAO.GetByRoleAsync(roleId);

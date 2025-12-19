@@ -26,13 +26,14 @@ public class BooksController : ODataController
     [HttpGet]
     [EnableQuery]
     [AllowAnonymous]
-    public async Task<IActionResult> Get([FromQuery] Guid? libraryId = null)
+    public IActionResult Get([FromQuery] Guid? libraryId = null)
     {
         // Get libraryId from middleware context (for Librarian scope)
         var scopedLibraryId = HttpContext.Items["LibraryId"] as Guid?;
         var filterLibraryId = scopedLibraryId ?? libraryId;
 
-        var books = await _bookService.GetAllAsync();
+        // Get IQueryable from service to allow OData filtering
+        var books = _bookService.GetAllAsQueryable();
         
         // Apply library filter if applicable
         if (filterLibraryId.HasValue)
@@ -40,8 +41,7 @@ public class BooksController : ODataController
             books = books.Where(b => b.LibraryId == filterLibraryId.Value);
         }
         
-        var bookDtos = _mapper.Map<List<BookDto>>(books);
-        return Ok(bookDtos);
+        return Ok(books);
     }
 
     [HttpGet("{id}")]

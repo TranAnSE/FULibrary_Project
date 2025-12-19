@@ -4,6 +4,7 @@ namespace DataAccessObjects;
 
 public interface IUserDAO : IBaseDAO<User>
 {
+    new IQueryable<User> GetAllAsQueryable();
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetByCardNumberAsync(string cardNumber);
     Task<IEnumerable<User>> GetByRoleAsync(Guid roleId);

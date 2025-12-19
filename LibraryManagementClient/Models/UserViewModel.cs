@@ -28,6 +28,10 @@ public class CreateUserDto
     [Required(ErrorMessage = "Full name is required")]
     public string FullName { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long")]
+    public string Password { get; set; } = string.Empty;
+
     public string? CardNumber { get; set; }
     public string? PhoneNumber { get; set; }
 

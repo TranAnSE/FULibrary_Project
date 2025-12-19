@@ -19,6 +19,15 @@ public class UserDAO : BaseDAO<User>, IUserDAO
             .ToListAsync();
     }
 
+    public new IQueryable<User> GetAllAsQueryable()
+    {
+        return _dbSet
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .Include(u => u.HomeLibrary)
+            .Include(u => u.AssignedLibrary);
+    }
+
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _dbSet

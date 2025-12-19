@@ -17,6 +17,11 @@ public class LibraryRepository : Repository<Library>, ILibraryRepository
         return await _libraryDAO.GetByNameAsync(name);
     }
 
+    public new IQueryable<Library> GetAllAsQueryable()
+    {
+        return _libraryDAO.GetAllAsQueryable();
+    }
+
     public async Task<Library?> GetWithBooksAsync(Guid id)
     {
         return await _libraryDAO.GetWithBooksAsync(id);

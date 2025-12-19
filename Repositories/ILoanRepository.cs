@@ -4,6 +4,7 @@ namespace Repositories;
 
 public interface ILoanRepository : IRepository<Loan>
 {
+    new IQueryable<Loan> GetAllAsQueryable();
     Task<IEnumerable<Loan>> GetByUserAsync(Guid userId);
     Task<IEnumerable<Loan>> GetActiveByUserAsync(Guid userId);
     Task<IEnumerable<Loan>> GetOverdueAsync();

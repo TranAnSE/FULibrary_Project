@@ -20,6 +20,16 @@ public class BookDAO : BaseDAO<Book>, IBookDAO
             .ToListAsync();
     }
 
+    public new IQueryable<Book> GetAllAsQueryable()
+    {
+        return _dbSet
+            .Include(b => b.Library)
+            .Include(b => b.Category)
+            .Include(b => b.Language)
+            .Include(b => b.Publisher)
+            .Include(b => b.Copies);
+    }
+
     public async Task<IEnumerable<Book>> GetByLibraryAsync(Guid libraryId)
     {
         return await _dbSet

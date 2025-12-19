@@ -133,12 +133,20 @@ public class AuthController : Controller
             return View(model);
         }
 
-        var result = await _apiService.PostAsync<dynamic>("api/auth/forgot-password", new { email = model.Email });
-
-        if (result != null)
+        try
         {
-            TempData["Success"] = "OTP code has been sent to your email.";
-            return RedirectToAction("ResetPassword", new { email = model.Email });
+            var result = await _apiService.PostAsync<dynamic>("api/auth/forgot-password", new { email = model.Email });
+
+            if (result != null)
+            {
+                TempData["Success"] = "OTP code has been sent to your email.";
+                return RedirectToAction("ResetPassword", new { email = model.Email });
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
         }
 
         ModelState.AddModelError(string.Empty, "Email not found");
@@ -168,12 +176,20 @@ public class AuthController : Controller
             newPassword = model.NewPassword 
         };
 
-        var result = await _apiService.PostAsync<dynamic>("api/auth/reset-password", resetData);
-
-        if (result != null)
+        try
         {
-            TempData["Success"] = "Password reset successfully. You can now login.";
-            return RedirectToAction("Login");
+            var result = await _apiService.PostAsync<dynamic>("api/auth/reset-password", resetData);
+
+            if (result != null)
+            {
+                TempData["Success"] = "Password reset successfully. You can now login.";
+                return RedirectToAction("Login");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
         }
 
         ModelState.AddModelError(string.Empty, "Invalid OTP code or reset failed");
@@ -216,16 +232,18 @@ public class AuthController : Controller
             newPassword = model.NewPassword 
         };
 
-        var result = await _apiService.PostAsync<dynamic>("api/auth/change-password", changeData);
-
-        if (result != null)
+        try
         {
+            await _apiService.PostAsync("api/auth/change-password", changeData);
+            
             TempData["Success"] = "Password changed successfully.";
             return RedirectToAction("Index", "Home");
         }
-
-        ModelState.AddModelError(string.Empty, "Password change failed");
-        return View(model);
+        catch (HttpRequestException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
     }
 
     [HttpGet]
@@ -236,12 +254,20 @@ public class AuthController : Controller
             return RedirectToAction("Login");
         }
 
-        var result = await _apiService.GetAsync<dynamic>($"api/auth/magic-link/verify?token={token}");
-
-        if (result != null)
+        try
         {
-            TempData["Success"] = "Magic link verified! Please set your password.";
-            return RedirectToAction("ChangePassword");
+            var result = await _apiService.GetAsync<dynamic>($"api/auth/magic-link/verify?token={token}");
+
+            if (result != null)
+            {
+                TempData["Success"] = "Magic link verified! Please set your password.";
+                return RedirectToAction("ChangePassword");
+            }
+        }
+        catch (HttpRequestException)
+        {
+            TempData["Error"] = "Invalid or expired magic link.";
+            return RedirectToAction("Login");
         }
 
         TempData["Error"] = "Invalid or expired magic link.";

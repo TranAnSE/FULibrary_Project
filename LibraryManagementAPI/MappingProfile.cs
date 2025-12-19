@@ -24,7 +24,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.UserRoles.Select(ur => ur.Role.Name).ToList()));
 
         CreateMap<CreateUserDto, User>()
-            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber));
+            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
+            .ForSourceMember(src => src.Password, opt => opt.DoNotValidate());
         CreateMap<UpdateUserDto, User>()
             .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

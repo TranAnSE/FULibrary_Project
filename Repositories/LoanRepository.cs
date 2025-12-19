@@ -12,6 +12,11 @@ public class LoanRepository : Repository<Loan>, ILoanRepository
         _loanDAO = loanDAO;
     }
 
+    public new IQueryable<Loan> GetAllAsQueryable()
+    {
+        return _loanDAO.GetAllAsQueryable();
+    }
+
     public async Task<IEnumerable<Loan>> GetByUserAsync(Guid userId)
     {
         return await _loanDAO.GetByUserAsync(userId);

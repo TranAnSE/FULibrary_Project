@@ -4,6 +4,7 @@ namespace DataAccessObjects;
 
 public interface IBookDAO : IBaseDAO<Book>
 {
+    new IQueryable<Book> GetAllAsQueryable();
     Task<IEnumerable<Book>> GetByLibraryAsync(Guid libraryId);
     Task<Book?> GetByISBNAsync(string isbn);
     Task<Book?> GetWithCopiesAsync(Guid id);

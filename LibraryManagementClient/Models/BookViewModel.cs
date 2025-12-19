@@ -1,5 +1,60 @@
 namespace LibraryManagementClient.Models;
 
+// OData Book entity that matches server side Book entity
+public class BookODataDto
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Author { get; set; }
+    public string? ISBN { get; set; }
+    public int? PublicationYear { get; set; }
+    public string? DDC { get; set; }
+    public string? Subject { get; set; }
+    public string? Keyword { get; set; }
+    public string? Description { get; set; }
+    public string? CoverImageUrl { get; set; }
+    public decimal? Price { get; set; }
+    public Guid LibraryId { get; set; }
+    public LibraryODataDto? Library { get; set; }
+    public Guid? CategoryId { get; set; }
+    public CategoryODataDto? Category { get; set; }
+    public Guid? LanguageId { get; set; }
+    public LanguageODataDto? Language { get; set; }
+    public Guid? PublisherId { get; set; }
+    public PublisherODataDto? Publisher { get; set; }
+    public List<BookCopyODataDto>? Copies { get; set; }
+}
+
+public class LibraryODataDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+}
+
+public class CategoryODataDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+}
+
+public class LanguageODataDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+}
+
+public class PublisherODataDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+}
+
+public class BookCopyODataDto
+{
+    public Guid Id { get; set; }
+    public string Status { get; set; } = string.Empty;
+}
+
 public class BookDto
 {
     public Guid Id { get; set; }

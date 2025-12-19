@@ -24,6 +24,11 @@ public class BaseDAO<T> : IBaseDAO<T> where T : BaseEntity
         return await _dbSet.ToListAsync();
     }
 
+    public virtual IQueryable<T> GetAllAsQueryable()
+    {
+        return _dbSet;
+    }
+
     public async Task<T> AddAsync(T entity)
     {
         entity.Id = Guid.NewGuid();

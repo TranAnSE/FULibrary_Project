@@ -25,6 +25,11 @@ public class LoanService : ILoanService
         return await _loanRepository.GetWithDetailsAsync(id);
     }
 
+    public IQueryable<Loan> GetAllAsQueryable()
+    {
+        return _loanRepository.GetAllAsQueryable();
+    }
+
     public async Task<IEnumerable<Loan>> GetByUserAsync(Guid userId)
     {
         var loans = await _loanRepository.GetByUserAsync(userId);

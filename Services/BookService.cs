@@ -25,6 +25,11 @@ public class BookService : IBookService
         return await _bookRepository.GetAllAsync();
     }
 
+    public virtual IQueryable<Book> GetAllAsQueryable()
+    {
+        return _bookRepository.GetAllAsQueryable();
+    }
+
     public async Task<IEnumerable<Book>> GetByLibraryAsync(Guid libraryId)
     {
         return await _bookRepository.GetByLibraryAsync(libraryId);

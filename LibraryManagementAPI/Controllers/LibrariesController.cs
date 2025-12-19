@@ -25,11 +25,10 @@ public class LibrariesController : ODataController
 
     [HttpGet]
     [EnableQuery]
-    public async Task<IActionResult> Get()
+    public IActionResult Get()
     {
-        var libraries = await _libraryService.GetAllAsync();
-        var libraryDtos = _mapper.Map<List<LibraryDto>>(libraries);
-        return Ok(libraryDtos);
+        var libraries = _libraryService.GetAllAsQueryable();
+        return Ok(libraries);
     }
 
     [HttpGet("{id}")]

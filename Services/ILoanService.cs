@@ -5,6 +5,7 @@ namespace Services;
 public interface ILoanService
 {
     Task<Loan?> GetByIdAsync(Guid id);
+    IQueryable<Loan> GetAllAsQueryable();
     Task<IEnumerable<Loan>> GetByUserAsync(Guid userId);
     Task<IEnumerable<Loan>> GetActiveByUserAsync(Guid userId);
     Task<Loan> CreateLoanAsync(Guid userId, Guid bookCopyId, Guid libraryId);

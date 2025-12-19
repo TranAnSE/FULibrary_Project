@@ -34,6 +34,11 @@ public class UserService : IUserService
         return await _userRepository.GetAllAsync();
     }
 
+    public IQueryable<User> GetAllAsQueryable()
+    {
+        return _userRepository.GetAllAsQueryable();
+    }
+
     public async Task<User> CreateUserAsync(User user, string password)
     {
         user.PasswordHash = _authService.HashPassword(password);

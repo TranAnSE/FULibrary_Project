@@ -9,6 +9,11 @@ public class LibraryDAO : BaseDAO<Library>, ILibraryDAO
     {
     }
 
+    public new IQueryable<Library> GetAllAsQueryable()
+    {
+        return _dbSet;
+    }
+
     public async Task<Library?> GetByNameAsync(string name)
     {
         return await _dbSet.FirstOrDefaultAsync(l => l.Name == name);

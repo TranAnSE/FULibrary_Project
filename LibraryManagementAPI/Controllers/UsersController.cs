@@ -25,11 +25,10 @@ public class UsersController : ControllerBase
 
     [HttpGet]
     [EnableQuery]
-    public async Task<IActionResult> Get()
+    public IActionResult Get()
     {
-        var users = await _userService.GetAllAsync();
-        var userDtos = _mapper.Map<List<UserDto>>(users);
-        return Ok(userDtos);
+        var users = _userService.GetAllAsQueryable();
+        return Ok(users);
     }
 
     [HttpGet("{id}")]
@@ -47,11 +46,8 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
     {
         var user = _mapper.Map<User>(createUserDto);
-        var randomPassword = Guid.NewGuid().ToString("N").Substring(0, 12);
         
-        var createdUser = await _userService.CreateUserWithRolesAsync(user, randomPassword, createUserDto.Roles);
-        
-        // TODO: Generate magic link and send email
+        var createdUser = await _userService.CreateUserWithRolesAsync(user, createUserDto.Password, createUserDto.Roles);
         
         var userDto = _mapper.Map<UserDto>(createdUser);
         return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, userDto);

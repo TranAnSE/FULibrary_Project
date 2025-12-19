@@ -51,57 +51,101 @@ public class SearchController : Controller
         var filterParts = new List<string>();
 
         // Add text-based filters with contains condition (case-insensitive)
+        // Handle null values properly for optional fields
         if (!string.IsNullOrWhiteSpace(model.Title))
-            filterParts.Add($"contains(tolower(title),'{model.Title.ToLower()}')");
+            filterParts.Add($"contains(tolower(Title),'{model.Title.ToLower().Replace("'", "''")}')");
         
         if (!string.IsNullOrWhiteSpace(model.Author))
-            filterParts.Add($"contains(tolower(author),'{model.Author.ToLower()}')");
+            filterParts.Add($"contains(tolower(Author),'{model.Author.ToLower().Replace("'", "''")}')");
         
         if (!string.IsNullOrWhiteSpace(model.ISBN))
-            filterParts.Add($"contains(tolower(isbn),'{model.ISBN.ToLower()}')");
+            filterParts.Add($"contains(tolower(ISBN),'{model.ISBN.ToLower().Replace("'", "''")}')");
         
         if (!string.IsNullOrWhiteSpace(model.Subject))
-            filterParts.Add($"contains(tolower(subject),'{model.Subject.ToLower()}')");
+            filterParts.Add($"contains(tolower(Subject),'{model.Subject.ToLower().Replace("'", "''")}')");
         
         if (!string.IsNullOrWhiteSpace(model.Keyword))
-            filterParts.Add($"contains(tolower(keyword),'{model.Keyword.ToLower()}')");
+            filterParts.Add($"contains(tolower(Keyword),'{model.Keyword.ToLower().Replace("'", "''")}')");
         
         // Add exact filters
         if (model.CategoryId.HasValue)
-            filterParts.Add($"categoryId eq {model.CategoryId.Value}");
+            filterParts.Add($"CategoryId eq {model.CategoryId.Value}");
         
         if (model.LanguageId.HasValue)
-            filterParts.Add($"languageId eq {model.LanguageId.Value}");
+            filterParts.Add($"LanguageId eq {model.LanguageId.Value}");
         
         if (model.PublisherId.HasValue)
-            filterParts.Add($"publisherId eq {model.PublisherId.Value}");
+            filterParts.Add($"PublisherId eq {model.PublisherId.Value}");
         
         // Add year range filters with validation logic
         if (model.YearFrom.HasValue)
         {
-            filterParts.Add($"publicationYear ge {model.YearFrom.Value}");
+            filterParts.Add($"PublicationYear ge {model.YearFrom.Value}");
         }
         
         if (model.YearTo.HasValue)
         {
-            filterParts.Add($"publicationYear le {model.YearTo.Value}");
+            filterParts.Add($"PublicationYear le {model.YearTo.Value}");
         }
 
         // Build OData query
         string odataQuery = "";
         if (filterParts.Any())
         {
-            odataQuery = $"?$filter={string.Join(" and ", filterParts)}&$expand=Library,Category,Language,Publisher";
+            // URL encode the filter to handle special characters
+            var filterExpression = Uri.EscapeDataString(string.Join(" and ", filterParts));
+            odataQuery = $"?$filter={filterExpression}&$expand=Library,Category,Language,Publisher";
         }
         else
         {
+            // If no filters, just get all books
             odataQuery = "?$expand=Library,Category,Language,Publisher";
         }
 
-        // Use OData endpoint for advanced filtering
-        var results = await _apiService.GetAsync<List<BookDto>>($"odata/Books{odataQuery}");
-        model.Results = results ?? new List<BookDto>();
-        model.TotalResults = model.Results.Count;
+        try
+        {
+            // Use OData endpoint with OData query parameters
+            Console.WriteLine($"Making API call to: odata/Books{odataQuery}");
+            var results = await _apiService.GetAsync<List<BookODataDto>>($"odata/Books{odataQuery}");
+            Console.WriteLine($"API returned {results?.Count ?? 0} results");
+            
+            // Convert OData entities to client DTOs
+            var bookDtos = results?.Select(book => new BookDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                ISBN = book.ISBN,
+                PublicationYear = book.PublicationYear,
+                DDC = book.DDC,
+                Subject = book.Subject,
+                Keyword = book.Keyword,
+                Description = book.Description,
+                CoverImageUrl = book.CoverImageUrl,
+                Price = book.Price,
+                LibraryId = book.LibraryId,
+                LibraryName = book.Library?.Name ?? "",
+                CategoryId = book.CategoryId,
+                CategoryName = book.Category?.Name,
+                LanguageId = book.LanguageId,
+                LanguageName = book.Language?.Name,
+                PublisherId = book.PublisherId,
+                PublisherName = book.Publisher?.Name,
+                TotalCopies = book.Copies?.Count ?? 0,
+                AvailableCopies = book.Copies?.Count(c => c.Status == "Available") ?? 0
+            }).ToList() ?? new List<BookDto>();
+            
+            model.Results = bookDtos;
+            model.TotalResults = model.Results.Count;
+        }
+        catch (Exception ex)
+        {
+            // Log error and return empty results
+            Console.WriteLine($"Error in Advanced search: {ex.Message}");
+            Console.WriteLine($"Full exception: {ex}");
+            model.Results = new List<BookDto>();
+            model.TotalResults = 0;
+        }
 
         // Reload filter options
         ViewBag.Categories = await _apiService.GetAsync<List<CategoryDto>>("api/catalogs/categories") ?? new List<CategoryDto>();

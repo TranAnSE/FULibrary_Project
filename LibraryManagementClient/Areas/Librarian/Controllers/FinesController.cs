@@ -57,11 +57,19 @@ public class FinesController : Controller
             ReceivedBy = receivedBy
         };
 
-        var result = await _apiService.PostAsync<dynamic>("api/fines/payment", paymentDto);
-        
-        if (result != null)
+        try
         {
-            TempData["Success"] = "Payment recorded successfully.";
+            var result = await _apiService.PostAsync<dynamic>("api/fines/payment", paymentDto);
+            
+            if (result != null)
+            {
+                TempData["Success"] = "Payment recorded successfully.";
+                return RedirectToAction(nameof(Details), new { id = fineId });
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Details), new { id = fineId });
         }
 
@@ -88,11 +96,19 @@ public class FinesController : Controller
             WaivedBy = waivedBy
         };
 
-        var result = await _apiService.PostAsync<dynamic>("api/fines/waive", waiverDto);
-        
-        if (result != null)
+        try
         {
-            TempData["Success"] = "Fine waived successfully.";
+            var result = await _apiService.PostAsync<dynamic>("api/fines/waive", waiverDto);
+            
+            if (result != null)
+            {
+                TempData["Success"] = "Fine waived successfully.";
+                return RedirectToAction(nameof(Details), new { id = fineId });
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Details), new { id = fineId });
         }
 
@@ -111,11 +127,19 @@ public class FinesController : Controller
             Reason = reason
         };
 
-        var result = await _apiService.PostAsync<dynamic>("api/fines/reduce", reduceDto);
-        
-        if (result != null)
+        try
         {
-            TempData["Success"] = "Fine amount reduced successfully.";
+            var result = await _apiService.PostAsync<dynamic>("api/fines/reduce", reduceDto);
+            
+            if (result != null)
+            {
+                TempData["Success"] = "Fine amount reduced successfully.";
+                return RedirectToAction(nameof(Details), new { id = fineId });
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Details), new { id = fineId });
         }
 
