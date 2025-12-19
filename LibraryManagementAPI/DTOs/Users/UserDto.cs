@@ -11,6 +11,7 @@ public class UserDto
     public string? CardNumber { get; set; }
     public DateTime? CardIssuedDate { get; set; }
     public DateTime? CardExpiryDate { get; set; }
+    public bool MustChangePassword { get; set; }
     public bool IsLocked { get; set; }
     public Guid? HomeLibraryId { get; set; }
     public string? HomeLibraryName { get; set; }

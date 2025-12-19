@@ -24,11 +24,11 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    [EnableQuery]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        var users = _userService.GetAllAsQueryable();
-        return Ok(users);
+        var users = await _userService.GetAllAsync();
+        var userDtos = _mapper.Map<List<UserDto>>(users);
+        return Ok(userDtos);
     }
 
     [HttpGet("{id}")]
