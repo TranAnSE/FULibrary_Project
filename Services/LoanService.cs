@@ -27,12 +27,22 @@ public class LoanService : ILoanService
 
     public async Task<IEnumerable<Loan>> GetByUserAsync(Guid userId)
     {
-        return await _loanRepository.GetByUserAsync(userId);
+        var loans = await _loanRepository.GetByUserAsync(userId);
+        foreach (var loan in loans)
+        {
+            loan.IsOverdue = loan.ReturnDate == null && loan.DueDate < DateTime.UtcNow;
+        }
+        return loans;
     }
 
     public async Task<IEnumerable<Loan>> GetActiveByUserAsync(Guid userId)
     {
-        return await _loanRepository.GetActiveByUserAsync(userId);
+        var loans = await _loanRepository.GetActiveByUserAsync(userId);
+        foreach (var loan in loans)
+        {
+            loan.IsOverdue = loan.ReturnDate == null && loan.DueDate < DateTime.UtcNow;
+        }
+        return loans;
     }
 
     public async Task<Loan> CreateLoanAsync(Guid userId, Guid bookCopyId, Guid libraryId)
@@ -105,17 +115,32 @@ public class LoanService : ILoanService
 
     public async Task<IEnumerable<Loan>> GetOverdueLoansAsync()
     {
-        return await _loanRepository.GetOverdueAsync();
+        var loans = await _loanRepository.GetOverdueAsync();
+        foreach (var loan in loans)
+        {
+            loan.IsOverdue = true; // This method specifically returns overdue loans
+        }
+        return loans;
     }
 
     public async Task<IEnumerable<Loan>> GetDueSoonAsync(int days)
     {
-        return await _loanRepository.GetDueSoonAsync(days);
+        var loans = await _loanRepository.GetDueSoonAsync(days);
+        foreach (var loan in loans)
+        {
+            loan.IsOverdue = loan.ReturnDate == null && loan.DueDate < DateTime.UtcNow;
+        }
+        return loans;
     }
 
     public async Task<IEnumerable<Loan>> GetByLibraryAsync(Guid libraryId)
     {
-        return await _loanRepository.GetByLibraryAsync(libraryId);
+        var loans = await _loanRepository.GetByLibraryAsync(libraryId);
+        foreach (var loan in loans)
+        {
+            loan.IsOverdue = loan.ReturnDate == null && loan.DueDate < DateTime.UtcNow;
+        }
+        return loans;
     }
 
     public async Task<bool> MarkAsOverdueAsync(Guid loanId)

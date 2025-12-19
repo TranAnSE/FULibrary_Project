@@ -1,3 +1,4 @@
+using LibraryManagementClient.Models;
 using LibraryManagementClient.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,23 +20,30 @@ public class MyLoansController : Controller
     public async Task<IActionResult> Current()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var loans = await _apiService.GetAsync<List<dynamic>>($"api/loans/user/{userId}/active");
-        return View(loans ?? new List<dynamic>());
+        var loans = await _apiService.GetAsync<List<LoanDto>>($"api/loans/user/{userId}/active");
+        return View(loans ?? new List<LoanDto>());
     }
 
     public async Task<IActionResult> History()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var loans = await _apiService.GetAsync<List<dynamic>>($"api/loans/user/{userId}");
-        return View(loans ?? new List<dynamic>());
+        var loans = await _apiService.GetAsync<List<LoanDto>>($"api/loans/user/{userId}");
+        return View(loans ?? new List<LoanDto>());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Renew(Guid id)
     {
-        var result = await _apiService.PostAsync<dynamic>($"api/loans/{id}/renew");
-        TempData[result != null ? "Success" : "Error"] = result != null ? "Loan renewed successfully." : "Failed to renew loan. May be overdue or at max renewals.";
+        try
+        {
+            await _apiService.PostAsync<object>($"api/loans/{id}/renew");
+            TempData["Success"] = "Loan renewed successfully.";
+        }
+        catch
+        {
+            TempData["Error"] = "Failed to renew loan. May be overdue or at max renewals.";
+        }
         return RedirectToAction(nameof(Current));
     }
 }

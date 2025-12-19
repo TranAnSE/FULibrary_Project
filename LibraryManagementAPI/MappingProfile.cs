@@ -69,9 +69,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.RegistrationNumber, opt => opt.MapFrom(src => src.BookCopy.RegistrationNumber))
             .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.BookCopy.Book.Title))
             .ForMember(dest => dest.BookCoverImageUrl, opt => opt.MapFrom(src => src.BookCopy.Book.CoverImageUrl))
-            .ForMember(dest => dest.LibraryName, opt => opt.MapFrom(src => src.Library != null ? src.Library.Name : string.Empty))
+            .ForMember(dest => dest.LibraryName, opt => opt.MapFrom(src => src.Library != null ? src.Library.Name : "Unknown Library"))
+            .ForMember(dest => dest.IsOverdue, opt => opt.MapFrom(src => src.ReturnDate == null && src.DueDate < DateTime.UtcNow))
             .ForMember(dest => dest.OverdueDays, opt => opt.MapFrom(src => src.ReturnDate == null && src.DueDate < DateTime.UtcNow ? (DateTime.UtcNow.Date - src.DueDate.Date).Days : 0))
-            .ForMember(dest => dest.RenewalsRemaining, opt => opt.Ignore());
+            .ForMember(dest => dest.RenewalsRemaining, opt => opt.MapFrom(src => Math.Max(0, 2 - src.RenewalCount))); // Assuming max 2 renewals
 
         CreateMap<CreateLoanDto, Loan>();
 

@@ -15,6 +15,7 @@ public class LoanDAO : BaseDAO<Loan>, ILoanDAO
             .Where(l => l.UserId == userId)
             .Include(l => l.BookCopy)
             .ThenInclude(bc => bc.Book)
+            .Include(l => l.Library)
             .OrderByDescending(l => l.LoanDate)
             .ToListAsync();
     }
@@ -25,6 +26,7 @@ public class LoanDAO : BaseDAO<Loan>, ILoanDAO
             .Where(l => l.UserId == userId && l.ReturnDate == null)
             .Include(l => l.BookCopy)
             .ThenInclude(bc => bc.Book)
+            .Include(l => l.Library)
             .OrderBy(l => l.DueDate)
             .ToListAsync();
     }
@@ -71,6 +73,7 @@ public class LoanDAO : BaseDAO<Loan>, ILoanDAO
             .Include(l => l.BookCopy)
             .ThenInclude(bc => bc.Book)
             .ThenInclude(b => b.Category)
+            .Include(l => l.Library)
             .Include(l => l.Fines)
             .FirstOrDefaultAsync(l => l.Id == id);
     }

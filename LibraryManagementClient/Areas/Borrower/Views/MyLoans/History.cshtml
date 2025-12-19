@@ -1,4 +1,4 @@
-@model List<dynamic>
+@model List<LibraryManagementClient.Models.LoanDto>
 @{
     ViewData["Title"] = "My Loan History";
 }
@@ -35,13 +35,13 @@
                 <tbody>
                     @foreach (var loan in Model.Where(l => l.ReturnDate != null).OrderByDescending(l => l.ReturnDate))
                     {
-                        var returnDate = (DateTime)loan.ReturnDate;
-                        var dueDate = (DateTime)loan.DueDate;
+                        var returnDate = loan.ReturnDate.Value;
+                        var dueDate = loan.DueDate;
                         bool wasOverdue = returnDate > dueDate;
-                        
+
                         <tr>
                             <td><strong>@loan.BookTitle</strong></td>
-                            <td>@((DateTime)loan.LoanDate).ToString("MMM dd, yyyy")</td>
+                            <td>@loan.LoanDate.ToString("MMM dd, yyyy")</td>
                             <td>@dueDate.ToString("MMM dd, yyyy")</td>
                             <td>@returnDate.ToString("MMM dd, yyyy")</td>
                             <td>

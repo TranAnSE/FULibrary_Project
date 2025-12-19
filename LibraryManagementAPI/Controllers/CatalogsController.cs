@@ -100,6 +100,15 @@ public class CatalogsController : ControllerBase
         return Ok(_mapper.Map<LanguageDto>(created));
     }
 
+    [HttpDelete("languages/{id}")]
+    public async Task<IActionResult> DeleteLanguage(Guid id)
+    {
+        var result = await _languageService.DeleteAsync(id);
+        if (!result)
+            return NotFound();
+        return NoContent();
+    }
+
     // Publishers
     [HttpGet("publishers")]
     public async Task<IActionResult> GetPublishers()
@@ -115,6 +124,15 @@ public class CatalogsController : ControllerBase
         var publisher = _mapper.Map<Publisher>(createDto);
         var created = await _publisherService.CreateAsync(publisher);
         return Ok(_mapper.Map<PublisherDto>(created));
+    }
+
+    [HttpDelete("publishers/{id}")]
+    public async Task<IActionResult> DeletePublisher(Guid id)
+    {
+        var result = await _publisherService.DeleteAsync(id);
+        if (!result)
+            return NotFound();
+        return NoContent();
     }
 
     // Shelf Locations
