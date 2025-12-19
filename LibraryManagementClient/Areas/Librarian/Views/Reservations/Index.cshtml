@@ -1,4 +1,4 @@
-@model List<dynamic>
+@model List<LibraryManagementClient.Models.ReservationDto>
 @{
     ViewData["Title"] = "All Reservations";
 }
@@ -55,12 +55,12 @@
                         bool isPending = reservation.Status == "Pending";
                         bool isFulfilled = reservation.FulfilledDate != null;
                         bool isCancelled = reservation.CancelledDate != null;
-                        
+
                         <tr>
                             <td><strong>@reservation.UserName</strong></td>
                             <td>@reservation.BookTitle</td>
-                            <td>@((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")</td>
-                            <td>@((DateTime)reservation.ExpiryDate).ToString("MMM dd, yyyy")</td>
+                            <td>@reservation.ReservationDate.ToString("MMM dd, yyyy")</td>
+                            <td>@reservation.ExpiryDate.ToString("MMM dd, yyyy")</td>
                             <td>
                                 @if (isFulfilled)
                                 {

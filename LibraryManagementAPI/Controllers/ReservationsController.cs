@@ -8,7 +8,6 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "Librarian")]
 public class ReservationsController : ControllerBase
 {
     private readonly IReservationService _reservationService;
@@ -21,6 +20,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpGet("user/{userId}")]
+    [Authorize(Policy = "Borrower")]
     public async Task<IActionResult> GetByUser(Guid userId)
     {
         var reservations = await _reservationService.GetByUserAsync(userId);
@@ -29,6 +29,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpGet("user/{userId}/active")]
+    [Authorize(Policy = "Borrower")]
     public async Task<IActionResult> GetActiveByUser(Guid userId)
     {
         var reservations = await _reservationService.GetActiveByUserAsync(userId);
@@ -37,6 +38,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpGet("pending")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> GetPending()
     {
         var reservations = await _reservationService.GetPendingAsync();
@@ -45,6 +47,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "Borrower")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var reservation = await _reservationService.GetByIdAsync(id);
@@ -56,6 +59,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "Borrower")]
     public async Task<IActionResult> Create([FromBody] CreateReservationDto createDto)
     {
         try
@@ -71,6 +75,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpPost("{id}/cancel")]
+    [Authorize(Policy = "Borrower")]
     public async Task<IActionResult> Cancel(Guid id)
     {
         var result = await _reservationService.CancelReservationAsync(id);
@@ -81,6 +86,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpPost("{id}/fulfill")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> Fulfill(Guid id)
     {
         var result = await _reservationService.FulfillReservationAsync(id);
@@ -91,6 +97,7 @@ public class ReservationsController : ControllerBase
     }
 
     [HttpPost("expire")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> ExpireReservations()
     {
         await _reservationService.ExpireReservationsAsync();

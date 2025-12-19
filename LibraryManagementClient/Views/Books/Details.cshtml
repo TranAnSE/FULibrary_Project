@@ -216,6 +216,23 @@
                             @Model.Copies.Count(c => c.Status == "Available") of @Model.Copies.Count copies available
                         </p>
                     </div>
+
+                    @* Reserve Book Button - Only for Borrowers when all copies are borrowed *@
+                    @if (User.IsInRole("Borrower") && Model.Copies.Count(c => c.Status == "Available") == 0)
+                    {
+                        <div class="mt-3 text-center">
+                            <form asp-controller="Books" asp-action="Reserve" method="post" class="d-inline">
+                                <input type="hidden" name="bookId" value="@Model.Id" />
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-bookmark me-2"></i>Reserve This Book
+                                </button>
+                            </form>
+                            <p class="text-muted mt-2 small">
+                                <i class="fas fa-clock me-1"></i>Reservation will be held for 3 days
+                            </p>
+                        </div>
+                    }
                 </div>
             </div>
         }

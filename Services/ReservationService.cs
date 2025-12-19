@@ -9,15 +9,24 @@ public class ReservationService : IReservationService
     private readonly IReservationRepository _reservationRepository;
     private readonly ISystemSettingsDAO _systemSettingsDAO;
     private readonly IBookCopyDAO _bookCopyDAO;
+    private readonly IUserDAO _userDAO;
+    private readonly IBookDAO _bookDAO;
+    private readonly ILoanDAO _loanDAO;
 
     public ReservationService(
         IReservationRepository reservationRepository,
         ISystemSettingsDAO systemSettingsDAO,
-        IBookCopyDAO bookCopyDAO)
+        IBookCopyDAO bookCopyDAO,
+        IUserDAO userDAO,
+        IBookDAO bookDAO,
+        ILoanDAO loanDAO)
     {
         _reservationRepository = reservationRepository;
         _systemSettingsDAO = systemSettingsDAO;
         _bookCopyDAO = bookCopyDAO;
+        _userDAO = userDAO;
+        _bookDAO = bookDAO;
+        _loanDAO = loanDAO;
     }
 
     public async Task<Reservation?> GetByIdAsync(Guid id)
@@ -37,10 +46,36 @@ public class ReservationService : IReservationService
 
     public async Task<Reservation> CreateReservationAsync(Guid userId, Guid bookId)
     {
-        var availableCopies = await _bookCopyDAO.GetAvailableCopiesAsync(bookId);
-        if (!availableCopies.Any())
-            throw new InvalidOperationException("No available copies for reservation");
+        // 1. Check if user exists and get their home library
+        var user = await _userDAO.GetByIdAsync(userId);
+        if (user == null)
+            throw new InvalidOperationException("User not found");
 
+        // 2. Check if book exists and get its library
+        var book = await _bookDAO.GetByIdAsync(bookId);
+        if (book == null)
+            throw new InvalidOperationException("Book not found");
+
+        // 3. Check if book belongs to user's home library
+        if (user.HomeLibraryId.HasValue && book.LibraryId != user.HomeLibraryId.Value)
+            throw new InvalidOperationException("You can only reserve books from your home library");
+
+        // 4. Check if all copies are borrowed (business rule: only reserve when no copies available)
+        var availableCopies = await _bookCopyDAO.GetAvailableCopiesAsync(bookId);
+        if (availableCopies.Any())
+            throw new InvalidOperationException("This book has available copies. Please borrow it directly instead of reserving");
+
+        // 5. Check if user already has an active reservation for this book
+        var activeReservations = await _reservationRepository.GetActiveByUserAsync(userId);
+        if (activeReservations.Any(r => r.BookId == bookId))
+            throw new InvalidOperationException("You already have an active reservation for this book");
+
+        // 6. Check if user currently has this book borrowed
+        var activeLoans = await _loanDAO.GetActiveByUserAsync(userId);
+        if (activeLoans.Any(l => l.BookCopy.BookId == bookId))
+            throw new InvalidOperationException("You already have this book borrowed");
+
+        // Create the reservation
         var expiryDays = 3;
         var reservation = new Reservation
         {

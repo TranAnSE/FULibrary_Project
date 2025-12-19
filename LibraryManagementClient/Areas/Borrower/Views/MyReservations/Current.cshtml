@@ -1,4 +1,4 @@
-@model List<dynamic>
+@model List<LibraryManagementClient.Models.ReservationDto>
 @{
     ViewData["Title"] = "My Reservations";
 }
@@ -58,13 +58,13 @@ else
     <div class="row">
         @foreach (var reservation in Model)
         {
-            var expiryDate = (DateTime)reservation.ExpiryDate;
+            var expiryDate = reservation.ExpiryDate;
             var daysLeft = (expiryDate - DateTime.Now).Days;
             bool expiringSoon = daysLeft <= 2;
-            
+
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card shadow-sm h-100 @(expiringSoon ? "border-warning" : "")">
-                    @if (!string.IsNullOrEmpty(reservation.BookCoverImageUrl?.ToString()))
+                    @if (!string.IsNullOrEmpty(reservation.BookCoverImageUrl))
                     {
                         <img src="@reservation.BookCoverImageUrl" class="card-img-top" alt="@reservation.BookTitle" style="height: 200px; object-fit: cover;" />
                     }
@@ -78,7 +78,7 @@ else
                         <h6 class="card-title">@reservation.BookTitle</h6>
                         <p class="card-text small">
                             <i class="fas fa-calendar me-1"></i>
-                            <strong>Reserved:</strong> @((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")
+                            <strong>Reserved:</strong> @reservation.ReservationDate.ToString("MMM dd, yyyy")
                         </p>
                         <p class="card-text small">
                             <i class="fas fa-calendar-times me-1"></i>

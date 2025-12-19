@@ -1,4 +1,4 @@
-@model List<dynamic>
+@model List<LibraryManagementClient.Models.ReservationDto>
 @{
     ViewData["Title"] = "Reservation History";
 }
@@ -38,11 +38,11 @@
                         bool isFulfilled = reservation.FulfilledDate != null;
                         bool isCancelled = reservation.CancelledDate != null;
                         bool isPending = reservation.Status == "Pending";
-                        
+
                         <tr>
                             <td><strong>@reservation.BookTitle</strong></td>
-                            <td>@((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")</td>
-                            <td>@((DateTime)reservation.ExpiryDate).ToString("MMM dd, yyyy")</td>
+                            <td>@reservation.ReservationDate.ToString("MMM dd, yyyy")</td>
+                            <td>@reservation.ExpiryDate.ToString("MMM dd, yyyy")</td>
                             <td>
                                 @if (isPending)
                                 {
@@ -66,14 +66,14 @@
                                 {
                                     <small class="text-success">
                                         <i class="fas fa-check-circle me-1"></i>
-                                        Fulfilled on @((DateTime)reservation.FulfilledDate).ToString("MMM dd, yyyy")
+                                        Fulfilled on @reservation.FulfilledDate.Value.ToString("MMM dd, yyyy")
                                     </small>
                                 }
                                 else if (isCancelled)
                                 {
                                     <small class="text-muted">
                                         <i class="fas fa-times-circle me-1"></i>
-                                        Cancelled on @((DateTime)reservation.CancelledDate).ToString("MMM dd, yyyy")
+                                        Cancelled on @reservation.CancelledDate.Value.ToString("MMM dd, yyyy")
                                     </small>
                                 }
                                 else if (isPending)

@@ -35,6 +35,7 @@ public class CatalogsController : ControllerBase
 
     // Categories
     [HttpGet("categories")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetCategories()
     {
         var categories = await _categoryService.GetAllAsync();
@@ -85,6 +86,7 @@ public class CatalogsController : ControllerBase
 
     // Languages
     [HttpGet("languages")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetLanguages()
     {
         var languages = await _languageService.GetAllAsync();
@@ -111,6 +113,7 @@ public class CatalogsController : ControllerBase
 
     // Publishers
     [HttpGet("publishers")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetPublishers()
     {
         var publishers = await _publisherService.GetAllAsync();

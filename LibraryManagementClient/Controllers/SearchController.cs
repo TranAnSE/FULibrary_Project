@@ -32,10 +32,14 @@ public class SearchController : Controller
     [HttpGet]
     public async Task<IActionResult> Advanced()
     {
-        // Get filter options
-        ViewBag.Categories = await _apiService.GetAsync<List<CategoryDto>>("api/catalogs/categories") ?? new List<CategoryDto>();
-        ViewBag.Languages = await _apiService.GetAsync<List<LanguageDto>>("api/catalogs/languages") ?? new List<LanguageDto>();
-        ViewBag.Publishers = await _apiService.GetAsync<List<PublisherDto>>("api/catalogs/publishers") ?? new List<PublisherDto>();
+        // Get filter options - ensure they are loaded properly
+        var categories = await _apiService.GetAsync<List<CategoryDto>>("api/catalogs/categories") ?? new List<CategoryDto>();
+        var languages = await _apiService.GetAsync<List<LanguageDto>>("api/catalogs/languages") ?? new List<LanguageDto>();
+        var publishers = await _apiService.GetAsync<List<PublisherDto>>("api/catalogs/publishers") ?? new List<PublisherDto>();
+
+        ViewBag.Categories = categories;
+        ViewBag.Languages = languages;
+        ViewBag.Publishers = publishers;
 
         return View(new SearchViewModel());
     }
@@ -43,68 +47,61 @@ public class SearchController : Controller
     [HttpPost]
     public async Task<IActionResult> Advanced(SearchViewModel model)
     {
-        // Build query string for advanced search
-        var queryParams = new List<string>();
+        // Build OData query for advanced search with combined conditions
+        var filterParts = new List<string>();
 
+        // Add text-based filters with contains condition (case-insensitive)
         if (!string.IsNullOrWhiteSpace(model.Title))
-            queryParams.Add($"title={Uri.EscapeDataString(model.Title)}");
+            filterParts.Add($"contains(tolower(title),'{model.Title.ToLower()}')");
         
         if (!string.IsNullOrWhiteSpace(model.Author))
-            queryParams.Add($"author={Uri.EscapeDataString(model.Author)}");
+            filterParts.Add($"contains(tolower(author),'{model.Author.ToLower()}')");
         
         if (!string.IsNullOrWhiteSpace(model.ISBN))
-            queryParams.Add($"isbn={Uri.EscapeDataString(model.ISBN)}");
+            filterParts.Add($"contains(tolower(isbn),'{model.ISBN.ToLower()}')");
         
         if (!string.IsNullOrWhiteSpace(model.Subject))
-            queryParams.Add($"subject={Uri.EscapeDataString(model.Subject)}");
+            filterParts.Add($"contains(tolower(subject),'{model.Subject.ToLower()}')");
         
         if (!string.IsNullOrWhiteSpace(model.Keyword))
-            queryParams.Add($"keyword={Uri.EscapeDataString(model.Keyword)}");
+            filterParts.Add($"contains(tolower(keyword),'{model.Keyword.ToLower()}')");
         
+        // Add exact filters
         if (model.CategoryId.HasValue)
-            queryParams.Add($"categoryId={model.CategoryId}");
+            filterParts.Add($"categoryId eq {model.CategoryId.Value}");
         
         if (model.LanguageId.HasValue)
-            queryParams.Add($"languageId={model.LanguageId}");
+            filterParts.Add($"languageId eq {model.LanguageId.Value}");
         
         if (model.PublisherId.HasValue)
-            queryParams.Add($"publisherId={model.PublisherId}");
+            filterParts.Add($"publisherId eq {model.PublisherId.Value}");
         
+        // Add year range filters with validation logic
         if (model.YearFrom.HasValue)
-            queryParams.Add($"yearFrom={model.YearFrom}");
+        {
+            filterParts.Add($"publicationYear ge {model.YearFrom.Value}");
+        }
         
         if (model.YearTo.HasValue)
-            queryParams.Add($"yearTo={model.YearTo}");
-
-        string query = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : "";
-
-        // For MVP, use basic search with combined terms
-        var searchTerm = string.Join(" ", new[] { model.Title, model.Author, model.Subject, model.Keyword }
-            .Where(s => !string.IsNullOrWhiteSpace(s)));
-
-        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var results = await _apiService.GetAsync<List<BookDto>>($"api/books/search?term={Uri.EscapeDataString(searchTerm)}");
-            model.Results = results ?? new List<BookDto>();
-            
-            // Apply client-side filtering for advanced criteria
-            if (model.CategoryId.HasValue)
-                model.Results = model.Results.Where(b => b.CategoryId == model.CategoryId).ToList();
-            
-            if (model.LanguageId.HasValue)
-                model.Results = model.Results.Where(b => b.LanguageId == model.LanguageId).ToList();
-            
-            if (model.PublisherId.HasValue)
-                model.Results = model.Results.Where(b => b.PublisherId == model.PublisherId).ToList();
-            
-            if (model.YearFrom.HasValue)
-                model.Results = model.Results.Where(b => b.PublicationYear >= model.YearFrom).ToList();
-            
-            if (model.YearTo.HasValue)
-                model.Results = model.Results.Where(b => b.PublicationYear <= model.YearTo).ToList();
-
-            model.TotalResults = model.Results.Count;
+            filterParts.Add($"publicationYear le {model.YearTo.Value}");
         }
+
+        // Build OData query
+        string odataQuery = "";
+        if (filterParts.Any())
+        {
+            odataQuery = $"?$filter={string.Join(" and ", filterParts)}&$expand=Library,Category,Language,Publisher";
+        }
+        else
+        {
+            odataQuery = "?$expand=Library,Category,Language,Publisher";
+        }
+
+        // Use OData endpoint for advanced filtering
+        var results = await _apiService.GetAsync<List<BookDto>>($"odata/Books{odataQuery}");
+        model.Results = results ?? new List<BookDto>();
+        model.TotalResults = model.Results.Count;
 
         // Reload filter options
         ViewBag.Categories = await _apiService.GetAsync<List<CategoryDto>>("api/catalogs/categories") ?? new List<CategoryDto>();

@@ -1,6 +1,8 @@
 using LibraryManagementClient.Models;
 using LibraryManagementClient.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LibraryManagementClient.Controllers;
 
@@ -43,7 +45,39 @@ public class BooksController : Controller
     {
         var newBooks = await _apiService.GetAsync<List<BookDto>>("api/books/new");
         ViewBag.NewBooks = newBooks ?? new List<BookDto>();
-        
+
         return View();
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Borrower")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reserve(Guid bookId)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var createReservationDto = new
+            {
+                UserId = Guid.Parse(userId!),
+                BookId = bookId
+            };
+
+            var result = await _apiService.PostAsync<dynamic>("api/reservations", createReservationDto);
+
+            TempData["Success"] = "Book reserved successfully! Please pick it up within 3 days.";
+            return RedirectToAction("Current", "MyReservations", new { area = "Borrower" });
+        }
+        catch (HttpRequestException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Details), new { id = bookId });
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "An unexpected error occurred. Please try again later.";
+            return RedirectToAction(nameof(Details), new { id = bookId });
+        }
     }
 }

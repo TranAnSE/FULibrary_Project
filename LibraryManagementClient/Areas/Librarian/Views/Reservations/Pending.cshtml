@@ -1,4 +1,4 @@
-@model List<dynamic>
+@model List<LibraryManagementClient.Models.ReservationDto>
 @{
     ViewData["Title"] = "Pending Reservations";
 }
@@ -57,7 +57,6 @@ else
                         <tr>
                             <th>Priority</th>
                             <th>Borrower</th>
-                            <th>Contact</th>
                             <th>Book</th>
                             <th>Reserved Date</th>
                             <th>Expires On</th>
@@ -71,7 +70,7 @@ else
                         }
                         @foreach (var reservation in Model)
                         {
-                            var expiryDate = (DateTime)reservation.ExpiryDate;
+                            var expiryDate = reservation.ExpiryDate;
                             var daysLeft = (expiryDate - DateTime.Now).Days;
                             bool isUrgent = daysLeft <= 2;
                             
@@ -87,9 +86,8 @@ else
                                     }
                                 </td>
                                 <td><strong>@reservation.UserName</strong></td>
-                                <td><small>@reservation.UserEmail</small></td>
                                 <td>@reservation.BookTitle</td>
-                                <td>@((DateTime)reservation.ReservationDate).ToString("MMM dd, yyyy")</td>
+                                <td>@reservation.ReservationDate.ToString("MMM dd, yyyy")</td>
                                 <td>@expiryDate.ToString("MMM dd, yyyy")</td>
                                 <td>
                                     @if (isUrgent)

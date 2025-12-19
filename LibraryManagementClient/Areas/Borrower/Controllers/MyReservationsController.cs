@@ -1,3 +1,4 @@
+using LibraryManagementClient.Models;
 using LibraryManagementClient.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,14 +20,14 @@ public class MyReservationsController : Controller
     public async Task<IActionResult> Current()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var reservations = await _apiService.GetAsync<List<dynamic>>($"api/reservations/user/{userId}/active") ?? new List<dynamic>();
+        var reservations = await _apiService.GetAsync<List<ReservationDto>>($"api/reservations/user/{userId}/active") ?? new List<ReservationDto>();
         return View(reservations);
     }
 
     public async Task<IActionResult> History()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var reservations = await _apiService.GetAsync<List<dynamic>>($"api/reservations/user/{userId}") ?? new List<dynamic>();
+        var reservations = await _apiService.GetAsync<List<ReservationDto>>($"api/reservations/user/{userId}") ?? new List<ReservationDto>();
         return View(reservations);
     }
 
@@ -34,8 +35,16 @@ public class MyReservationsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(Guid id)
     {
-        var result = await _apiService.PostAsync<dynamic>($"api/reservations/{id}/cancel");
-        TempData[result != null ? "Success" : "Error"] = result != null ? "Reservation cancelled successfully." : "Failed to cancel reservation.";
-        return RedirectToAction(nameof(Current));
+        try
+        {
+            var result = await _apiService.PostAsync<object>($"api/reservations/{id}/cancel");
+            TempData["Success"] = "Reservation cancelled successfully.";
+            return RedirectToAction(nameof(Current));
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Failed to cancel reservation.";
+            return RedirectToAction(nameof(Current));
+        }
     }
 }
