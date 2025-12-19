@@ -10,7 +10,7 @@ namespace LibraryManagementAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "Librarian")]
+[Authorize] // Allow any authenticated user
 public class LoansController : ODataController
 {
     private readonly ILoanService _loanService;
@@ -24,6 +24,7 @@ public class LoansController : ODataController
 
     [HttpGet]
     [EnableQuery]
+    [Authorize(Policy = "Librarian")] // Only librarians can query all loans
     public async Task<IActionResult> Get([FromQuery] Guid? userId, [FromQuery] Guid? libraryId)
     {
         // Get libraryId from middleware context (for Librarian scope)
@@ -60,6 +61,14 @@ public class LoansController : ODataController
         return Ok(loanDto);
     }
 
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetByUser(Guid userId)
+    {
+        var loans = await _loanService.GetByUserAsync(userId);
+        var loanDtos = _mapper.Map<List<LoanDto>>(loans);
+        return Ok(loanDtos);
+    }
+
     [HttpGet("user/{userId}/active")]
     public async Task<IActionResult> GetActiveByUser(Guid userId)
     {
@@ -69,6 +78,7 @@ public class LoansController : ODataController
     }
 
     [HttpGet("overdue")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> GetOverdue([FromQuery] Guid? libraryId)
     {
         // Get libraryId from middleware context (for Librarian scope)
@@ -88,6 +98,7 @@ public class LoansController : ODataController
     }
 
     [HttpGet("due-soon")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> GetDueSoon([FromQuery] int days = 7, [FromQuery] Guid? libraryId = null)
     {
         // Get libraryId from middleware context (for Librarian scope)
@@ -107,6 +118,7 @@ public class LoansController : ODataController
     }
 
     [HttpPost]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> Create([FromBody] CreateLoanDto createLoanDto)
     {
         try
@@ -138,6 +150,7 @@ public class LoansController : ODataController
     }
 
     [HttpPost("{id}/return")]
+    [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> ReturnBook(Guid id)
     {
         var result = await _loanService.ReturnBookAsync(id);

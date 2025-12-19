@@ -83,7 +83,7 @@
                                         <td><strong>@category.Name</strong></td>
                                         <td>@(category.Description ?? "N/A")</td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="editCategory('@category.Id', '@category.Name', '@category.Description')">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadEditCategoryModal('@category.Id')">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCategory('@category.Id', '@category.Name')">
@@ -278,9 +278,26 @@
 
 @section Scripts {
 <script>
+function loadEditCategoryModal(id) {
+    // Fetch category data via AJAX and load modal
+    fetch('@Url.Action("EditCategory", "Catalogs")/' + id)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('editCategoryModalPlaceholder').innerHTML = html;
+            
+            // Show the modal
+            var modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error loading edit modal:', error);
+            alert('Failed to load edit form');
+        });
+}
+
 function editCategory(id, name, description) {
-    // For now, alert - full implementation would use API
-    alert('Edit functionality: ' + name + '\nNote: Full implementation requires additional modal and API call.');
+    // This function is now replaced with loadEditCategoryModal
+    loadEditCategoryModal(id);
 }
 
 function deleteCategory(id, name) {
@@ -356,4 +373,7 @@ function deletePublisher(id, name) {
     }
 }
 </script>
+
+<!-- Edit Category Modal Placeholder -->
+<div id="editCategoryModalPlaceholder"></div>
 }

@@ -33,6 +33,33 @@ public class CatalogsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    public async Task<IActionResult> EditCategory(Guid id)
+    {
+        var category = await _apiService.GetAsync<CategoryDto>($"api/catalogs/categories/{id}");
+        if (category == null)
+        {
+            TempData["Error"] = "Category not found.";
+            return RedirectToAction(nameof(Index));
+        }
+        return PartialView("_EditCategoryModal", category);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateCategory(Guid id, string name, string? description)
+    {
+        var updateDto = new { Name = name, Description = description };
+        var result = await _apiService.PutAsync<CategoryDto>($"api/catalogs/categories/{id}", updateDto);
+        if (result != null)
+        {
+            TempData["Success"] = "Category updated successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = "Failed to update category.";
+        return RedirectToAction(nameof(Index));
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateLanguage(string name, string? code)

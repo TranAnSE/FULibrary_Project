@@ -26,7 +26,7 @@ public class MyLoansController : Controller
     public async Task<IActionResult> History()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var loans = await _apiService.GetAsync<List<dynamic>>($"api/loans?userId={userId}");
+        var loans = await _apiService.GetAsync<List<dynamic>>($"api/loans/user/{userId}");
         return View(loans ?? new List<dynamic>());
     }
 

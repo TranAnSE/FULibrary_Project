@@ -10,10 +10,12 @@ namespace LibraryManagementAPI.Controllers;
 public class ReportsController : ControllerBase
 {
     private readonly IReportService _reportService;
+    private readonly ILibraryService _libraryService;
 
-    public ReportsController(IReportService reportService)
+    public ReportsController(IReportService reportService, ILibraryService libraryService)
     {
         _reportService = reportService;
+        _libraryService = libraryService;
     }
 
     [HttpGet("admin/dashboard")]
@@ -24,6 +26,10 @@ public class ReportsController : ControllerBase
         var topBooks = await _reportService.GetTopBorrowedBooksByLibraryAsync();
         var availabilityRatio = await _reportService.GetAvailabilityRatioByLibraryAsync();
         var systemStats = await _reportService.GetSystemWideStatisticsAsync();
+        
+        // Get all libraries to map names
+        var allLibraries = await _libraryService.GetAllAsync();
+        var libraryNameMap = allLibraries.ToDictionary(l => l.Id, l => l.Name);
 
         var dashboard = new AdminDashboardDto
         {
@@ -32,7 +38,7 @@ public class ReportsController : ControllerBase
                 kvp => new LibraryStatsDto
                 {
                     LibraryId = kvp.Key,
-                    LibraryName = string.Empty,
+                    LibraryName = libraryNameMap.GetValueOrDefault(kvp.Key, "Unknown Library"),
                     TotalBooks = kvp.Value,
                     AvailableCopies = availabilityRatio.ContainsKey(kvp.Key) ? availabilityRatio[kvp.Key].Available : 0,
                     BorrowedCopies = availabilityRatio.ContainsKey(kvp.Key) ? availabilityRatio[kvp.Key].Borrowed : 0,
@@ -46,7 +52,7 @@ public class ReportsController : ControllerBase
                 BookTitle = book.BookTitle,
                 LoanCount = book.LoanCount,
                 LibraryId = kvp.Key,
-                LibraryName = string.Empty
+                LibraryName = libraryNameMap.GetValueOrDefault(kvp.Key, "Unknown Library")
             })).ToList(),
             SystemStats = new SystemStatsDto
             {
@@ -111,12 +117,16 @@ public class ReportsController : ControllerBase
         if (!topBooks.ContainsKey(libraryId))
             return Ok(new List<TopBookDto>());
 
+        // Get library name
+        var library = await _libraryService.GetByIdAsync(libraryId);
+        var libraryName = library?.Name ?? "Unknown Library";
+
         var result = topBooks[libraryId].Select(b => new TopBookDto
         {
             BookTitle = b.BookTitle,
             LoanCount = b.LoanCount,
             LibraryId = libraryId,
-            LibraryName = string.Empty
+            LibraryName = libraryName
         });
 
         return Ok(result);
