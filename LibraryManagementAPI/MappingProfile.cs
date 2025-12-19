@@ -32,6 +32,9 @@ public class MappingProfile : Profile
         // Library mappings
         CreateMap<Library, LibraryDto>();
         CreateMap<CreateLibraryDto, Library>();
+        CreateMap<UpdateLibraryDto, Library>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+        CreateMap<Library, UpdateLibraryDto>();
 
         // Book mappings
         CreateMap<Book, BookDto>()
