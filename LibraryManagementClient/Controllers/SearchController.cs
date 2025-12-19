@@ -104,9 +104,9 @@ public class SearchController : Controller
 
         try
         {
-            // Use OData endpoint with OData query parameters
-            Console.WriteLine($"Making API call to: odata/Books{odataQuery}");
-            var results = await _apiService.GetAsync<List<BookODataDto>>($"odata/Books{odataQuery}");
+            // Use API endpoint with OData query parameters
+            Console.WriteLine($"Making API call to: api/Books{odataQuery}");
+            var results = await _apiService.GetAsync<List<BookODataDto>>($"api/Books{odataQuery}");
             Console.WriteLine($"API returned {results?.Count ?? 0} results");
             
             // Convert OData entities to client DTOs
