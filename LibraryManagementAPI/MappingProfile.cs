@@ -18,12 +18,15 @@ public class MappingProfile : Profile
     {
         // User mappings
         CreateMap<User, UserDto>()
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone))
             .ForMember(dest => dest.HomeLibraryName, opt => opt.MapFrom(src => src.HomeLibrary != null ? src.HomeLibrary.Name : null))
             .ForMember(dest => dest.AssignedLibraryName, opt => opt.MapFrom(src => src.AssignedLibrary != null ? src.AssignedLibrary.Name : null))
             .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.UserRoles.Select(ur => ur.Role.Name).ToList()));
 
-        CreateMap<CreateUserDto, User>();
+        CreateMap<CreateUserDto, User>()
+            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber));
         CreateMap<UpdateUserDto, User>()
+            .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
         // Library mappings

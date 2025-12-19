@@ -45,7 +45,7 @@
                         <th>Address</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <th>Hours</th>
+                        <th>Website</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -59,7 +59,18 @@
                             <td>@(library.Address ?? "N/A")</td>
                             <td>@(library.Email ?? "N/A")</td>
                             <td>@(library.Phone ?? "N/A")</td>
-                            <td>@(library.Hours ?? "N/A")</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(library.Website))
+                                {
+                                    <span class="text-muted">N/A</span>
+                                }
+                                else
+                                {
+                                    <a href="@library.Website" target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-external-link-alt me-1"></i>Website
+                                    </a>
+                                }
+                            </td>
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a asp-action="Edit" asp-route-id="@library.Id" class="btn btn-outline-primary" title="Edit">

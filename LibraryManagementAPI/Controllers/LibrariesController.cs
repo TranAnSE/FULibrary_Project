@@ -54,7 +54,7 @@ public class LibrariesController : ODataController
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] CreateLibraryDto updateLibraryDto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLibraryDto updateLibraryDto)
     {
         var existingLibrary = await _libraryService.GetByIdAsync(id);
         if (existingLibrary == null)

@@ -41,13 +41,15 @@ public class UsersController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateUserDto model)
+    public async Task<IActionResult> Create(CreateUserDto model, List<string> Roles)
     {
         if (!ModelState.IsValid)
         {
             await LoadLibraries();
             return View(model);
         }
+
+        model.Roles = Roles ?? new List<string>();
 
         var result = await _apiService.PostAsync<UserDto>("api/users", model);
         if (result != null)
@@ -78,25 +80,30 @@ public class UsersController : Controller
             CardNumber = user.CardNumber,
             PhoneNumber = user.PhoneNumber,
             HomeLibraryId = user.HomeLibraryId,
-            AssignedLibraryId = user.AssignedLibraryId
+            AssignedLibraryId = user.AssignedLibraryId,
+            Roles = user.Roles
         };
 
+        ViewData["UserRoles"] = user.Roles;
         await LoadLibraries();
         return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, UpdateUserDto model)
+    public async Task<IActionResult> Edit(Guid id, UpdateUserDto model, List<string> Roles)
     {
         if (id != model.Id)
             return BadRequest();
 
         if (!ModelState.IsValid)
         {
+            ViewData["UserRoles"] = Roles ?? new List<string>();
             await LoadLibraries();
             return View(model);
         }
+
+        model.Roles = Roles ?? new List<string>();
 
         var result = await _apiService.PutAsync<UserDto>($"api/users/{id}", model);
         if (result != null)
@@ -106,6 +113,7 @@ public class UsersController : Controller
         }
 
         ModelState.AddModelError(string.Empty, "Failed to update user");
+        ViewData["UserRoles"] = Roles ?? new List<string>();
         await LoadLibraries();
         return View(model);
     }

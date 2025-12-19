@@ -55,6 +55,7 @@ public class UpdateUserDto
     public string? PhoneNumber { get; set; }
     public Guid? HomeLibraryId { get; set; }
     public Guid? AssignedLibraryId { get; set; }
+    public List<string> Roles { get; set; } = new();
 }
 
 public class LibraryDto
@@ -64,5 +65,8 @@ public class LibraryDto
     public string? Address { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
-    public string? Hours { get; set; }
+    public string? Website { get; set; }
+    public string? WeekdayHours { get; set; }
+    public string? WeekendHours { get; set; }
+    public string? SocialMedia { get; set; }
 }

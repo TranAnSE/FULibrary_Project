@@ -62,6 +62,8 @@ public class UserDAO : BaseDAO<User>, IUserDAO
         return await _dbSet
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
+            .Include(u => u.HomeLibrary)
+            .Include(u => u.AssignedLibrary)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 }

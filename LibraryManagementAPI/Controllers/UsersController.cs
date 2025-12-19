@@ -49,7 +49,7 @@ public class UsersController : ControllerBase
         var user = _mapper.Map<User>(createUserDto);
         var randomPassword = Guid.NewGuid().ToString("N").Substring(0, 12);
         
-        var createdUser = await _userService.CreateUserAsync(user, randomPassword);
+        var createdUser = await _userService.CreateUserWithRolesAsync(user, randomPassword, createUserDto.Roles);
         
         // TODO: Generate magic link and send email
         
@@ -68,7 +68,7 @@ public class UsersController : ControllerBase
             return NotFound();
 
         _mapper.Map(updateUserDto, existingUser);
-        var updatedUser = await _userService.UpdateUserAsync(existingUser);
+        var updatedUser = await _userService.UpdateUserWithRolesAsync(existingUser, updateUserDto.Roles);
         
         var userDto = _mapper.Map<UserDto>(updatedUser);
         return Ok(userDto);

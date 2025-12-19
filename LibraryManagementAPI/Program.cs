@@ -64,6 +64,8 @@ builder.Services.AddAutoMapper(typeof(Program));
 // Register DAOs
 builder.Services.AddScoped(typeof(IBaseDAO<>), typeof(BaseDAO<>));
 builder.Services.AddScoped<IUserDAO, UserDAO>();
+builder.Services.AddScoped<IRoleDAO, RoleDAO>();
+builder.Services.AddScoped<IUserRoleDAO, UserRoleDAO>();
 builder.Services.AddScoped<ILibraryDAO, LibraryDAO>();
 builder.Services.AddScoped<IBookDAO, BookDAO>();
 builder.Services.AddScoped<IBookCopyDAO, BookCopyDAO>();

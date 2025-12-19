@@ -43,10 +43,31 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Hours" class="form-label"></label>
-                        <input asp-for="Hours" class="form-control" placeholder="e.g., Mon-Fri: 8AM-5PM, Sat: 9AM-1PM" />
-                        <span asp-validation-for="Hours" class="text-danger"></span>
-                        <small class="form-text text-muted">Enter operating hours</small>
+                        <label asp-for="WeekdayHours" class="form-label"></label>
+                        <input asp-for="WeekdayHours" class="form-control" placeholder="e.g., Mon-Fri: 8AM-5PM" />
+                        <span asp-validation-for="WeekdayHours" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter weekday operating hours</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WeekendHours" class="form-label"></label>
+                        <input asp-for="WeekendHours" class="form-control" placeholder="e.g., Sat: 9AM-1PM, Sun: Closed" />
+                        <span asp-validation-for="WeekendHours" class="text-danger"></span>
+                        <small class="form-text text-muted">Enter weekend operating hours</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Website" class="form-label"></label>
+                        <input asp-for="Website" type="url" class="form-control" placeholder="https://library.example.com" />
+                        <span asp-validation-for="Website" class="text-danger"></span>
+                        <small class="form-text text-muted">Library website URL</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SocialMedia" class="form-label"></label>
+                        <input asp-for="SocialMedia" class="form-control" placeholder="https://facebook.com/library" />
+                        <span asp-validation-for="SocialMedia" class="text-danger"></span>
+                        <small class="form-text text-muted">Social media links</small>
                     </div>
 
                     <div class="mt-4">

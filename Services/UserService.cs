@@ -1,4 +1,5 @@
 using BusinessObjects;
+using DataAccessObjects;
 using Repositories;
 
 namespace Services;
@@ -6,11 +7,15 @@ namespace Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IRoleDAO _roleDAO;
+    private readonly IUserRoleDAO _userRoleDAO;
     private readonly IAuthService _authService;
 
-    public UserService(IUserRepository userRepository, IAuthService authService)
+    public UserService(IUserRepository userRepository, IRoleDAO roleDAO, IUserRoleDAO userRoleDAO, IAuthService authService)
     {
         _userRepository = userRepository;
+        _roleDAO = roleDAO;
+        _userRoleDAO = userRoleDAO;
         _authService = authService;
     }
 
@@ -36,9 +41,71 @@ public class UserService : IUserService
         return await _userRepository.CreateAsync(user);
     }
 
+    public async Task<User> CreateUserWithRolesAsync(User user, string password, List<string> roleNames)
+    {
+        user.PasswordHash = _authService.HashPassword(password);
+        user.MustChangePassword = true;
+        
+        var createdUser = await _userRepository.CreateAsync(user);
+        
+        // Assign roles
+        if (roleNames != null && roleNames.Any())
+        {
+            foreach (var roleName in roleNames)
+            {
+                var role = await _roleDAO.GetByNameAsync(roleName);
+                if (role != null)
+                {
+                    var userRole = new UserRole
+                    {
+                        UserId = createdUser.Id,
+                        RoleId = role.Id
+                    };
+                    await _userRoleDAO.AddAsync(userRole);
+                }
+            }
+        }
+        
+        return createdUser;
+    }
+
     public async Task<User> UpdateUserAsync(User user)
     {
         return await _userRepository.UpdateAsync(user);
+    }
+
+    public async Task<User> UpdateUserWithRolesAsync(User user, List<string> roleNames)
+    {
+        // Update user basic info
+        var updatedUser = await _userRepository.UpdateAsync(user);
+        
+        // Update roles
+        // Remove existing roles
+        var existingUserRoles = await _userRoleDAO.GetByUserIdAsync(user.Id);
+        foreach (var userRole in existingUserRoles)
+        {
+            await _userRoleDAO.DeleteAsync(userRole.Id);
+        }
+        
+        // Add new roles
+        if (roleNames != null && roleNames.Any())
+        {
+            foreach (var roleName in roleNames)
+            {
+                var role = await _roleDAO.GetByNameAsync(roleName);
+                if (role != null)
+                {
+                    var userRole = new UserRole
+                    {
+                        UserId = user.Id,
+                        RoleId = role.Id
+                    };
+                    await _userRoleDAO.AddAsync(userRole);
+                }
+            }
+        }
+        
+        return updatedUser;
     }
 
     public async Task<bool> DeleteUserAsync(Guid id)

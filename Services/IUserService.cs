@@ -8,7 +8,9 @@ public interface IUserService
     Task<User?> GetByEmailAsync(string email);
     Task<IEnumerable<User>> GetAllAsync();
     Task<User> CreateUserAsync(User user, string password);
+    Task<User> CreateUserWithRolesAsync(User user, string password, List<string> roleNames);
     Task<User> UpdateUserAsync(User user);
+    Task<User> UpdateUserWithRolesAsync(User user, List<string> roleNames);
     Task<bool> DeleteUserAsync(Guid id);
     Task<bool> LockUserAsync(Guid id);
     Task<bool> UnlockUserAsync(Guid id);
