@@ -26,6 +26,11 @@ public class SettingsController : Controller
             var settings = await _apiService.GetAsync<SystemSettingsDto>($"api/systemsettings/library/{library.Id}");
             if (settings != null)
             {
+                // Ensure LibraryName is populated from library name if API doesn't provide it
+                if (string.IsNullOrEmpty(settings.LibraryName))
+                {
+                    settings.LibraryName = library.Name;
+                }
                 settingsList.Add(settings);
             }
         }
@@ -58,7 +63,7 @@ public class SettingsController : Controller
 
         var updateDto = new UpdateSystemSettingsDto
         {
-            Id = model.LibraryId,
+            Id = model.Id,
             MaxBooksPerBorrower = model.MaxBooksPerBorrower,
             LoanDurationDays = model.LoanDurationDays,
             MaxRenewals = model.MaxRenewals,
