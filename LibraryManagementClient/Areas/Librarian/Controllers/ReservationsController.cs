@@ -35,7 +35,12 @@ public class ReservationsController : Controller
         try
         {
             var result = await _apiService.PostAsync<object>($"api/reservations/{id}/fulfill");
-            TempData["Success"] = "Reservation fulfilled successfully.";
+            TempData["Success"] = "Reservation fulfilled successfully - Loan created for borrower.";
+            return RedirectToAction(nameof(Pending));
+        }
+        catch (HttpRequestException ex)
+        {
+            TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Pending));
         }
         catch (Exception ex)
@@ -53,6 +58,11 @@ public class ReservationsController : Controller
         {
             var result = await _apiService.PostAsync<object>($"api/reservations/{id}/cancel");
             TempData["Success"] = "Reservation cancelled successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (HttpRequestException ex)
+        {
+            TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)

@@ -41,6 +41,11 @@ public class MyReservationsController : Controller
             TempData["Success"] = "Reservation cancelled successfully.";
             return RedirectToAction(nameof(Current));
         }
+        catch (HttpRequestException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Current));
+        }
         catch (Exception ex)
         {
             TempData["Error"] = "Failed to cancel reservation.";

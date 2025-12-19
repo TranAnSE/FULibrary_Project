@@ -89,11 +89,18 @@ public class ReservationsController : ControllerBase
     [Authorize(Policy = "Librarian")]
     public async Task<IActionResult> Fulfill(Guid id)
     {
-        var result = await _reservationService.FulfillReservationAsync(id);
-        if (!result)
-            return NotFound();
+        try
+        {
+            var result = await _reservationService.FulfillReservationAsync(id);
+            if (!result)
+                return NotFound();
 
-        return Ok(new { message = "Reservation fulfilled successfully" });
+            return Ok(new { message = "Reservation fulfilled successfully - Loan created for borrower" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("expire")]
